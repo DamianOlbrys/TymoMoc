@@ -11,7 +11,7 @@ const SUBJECTS = {
   mix: { name: "Chaos Mix", icon: "✦", mascot: "🧠", color: "#ffc93d" }
 };
 
-const QUESTION_BANK = {
+const SEED_QUESTION_BANK = {
   8: {
     math: [
       { prompt: "Aksolot odpala kalkulator", question: "Ile to jest 36 + 27?", answers: ["53", "63", "73", "62"], answer: "63", fact: "36 + 20 = 56, a potem +7 = 63." },
@@ -144,14 +144,20 @@ const QUESTION_BANK = {
   }
 };
 
+const QUESTION_BANK = window.TYMO_CONTENT.buildQuestionBank(SEED_QUESTION_BANK);
 const SUBJECT_KEYS = Object.keys(QUESTION_BANK[8]);
 const LEVEL_THRESHOLDS = [0, 100, 250, 450, 700, 1000, 1400, 1900, 2500, 3200, 4000, 5000, 6200, 7600, 9500];
+const DAILY_CATEGORY_GOAL = 120;
+const HISTORY_DAYS_LIMIT = 365;
 
 const STORAGE_KEY = "tymomoc-progress-v1";
 const AGE_KEY = "tymomoc-age";
 const SOUND_KEY = "tymomoc-sound";
 const SYNC_CODE_KEY = "tymomoc-sync-code-v1";
-const PROGRESS_API_URL = "https://tymomoc-api.damianolbrys5.workers.dev/api/progress";
+const AUTH_TOKEN_KEY = "tymomoc-auth-token-v1";
+const PROGRESS_MIGRATION_OWNER_KEY = "tymomoc-progress-owner-v1";
+const FALLBACK_API_BASE_URL = "https://tymomoc-api.damianolbrys5.workers.dev";
+let apiBaseUrl = FALLBACK_API_BASE_URL;
 
 const els = {
   ageModal: document.querySelector("#age-modal"),
@@ -177,6 +183,35 @@ const els = {
   levelsCopy: document.querySelector("#levels-copy"),
   categoryProgressList: document.querySelector("#category-progress-list"),
   levelThresholdGrid: document.querySelector("#level-threshold-grid"),
+  historyToggle: document.querySelector("#history-toggle"),
+  historyModal: document.querySelector("#history-modal"),
+  historyClose: document.querySelector("#history-close"),
+  historyCopy: document.querySelector("#history-copy"),
+  historySummary: document.querySelector("#history-summary"),
+  historyList: document.querySelector("#history-list"),
+  motivationTitle: document.querySelector("#motivation-title"),
+  accountToggle: document.querySelector("#account-toggle"),
+  accountAvatar: document.querySelector("#account-avatar"),
+  accountName: document.querySelector("#account-name"),
+  accountStatus: document.querySelector("#account-status"),
+  authModal: document.querySelector("#auth-modal"),
+  authClose: document.querySelector("#auth-close"),
+  authCopy: document.querySelector("#auth-copy"),
+  authMessage: document.querySelector("#auth-message"),
+  authRefresh: document.querySelector("#auth-refresh"),
+  googleSignin: document.querySelector("#google-signin"),
+  accountModal: document.querySelector("#account-modal"),
+  accountClose: document.querySelector("#account-close"),
+  accountTitle: document.querySelector("#account-title"),
+  accountEmail: document.querySelector("#account-email"),
+  accountState: document.querySelector("#account-state"),
+  accountProfileAvatar: document.querySelector("#account-profile-avatar"),
+  logoutButton: document.querySelector("#logout-button"),
+  adminToggle: document.querySelector("#admin-toggle"),
+  adminModal: document.querySelector("#admin-modal"),
+  adminClose: document.querySelector("#admin-close"),
+  adminSummary: document.querySelector("#admin-summary"),
+  adminUsers: document.querySelector("#admin-users"),
   randomMission: document.querySelector("#random-mission"),
   mixMission: document.querySelector("#mix-mission"),
   soundToggle: document.querySelector("#sound-toggle"),
@@ -214,13 +249,19 @@ const emptyProgress = () => ({
   completed: 0,
   correct: 0,
   today: { date: localDate(), count: 0 },
-  categories: emptyCategories()
+  categories: emptyCategories(),
+  history: {}
 });
 
 let age = Number(safeGet(AGE_KEY)) || 8;
 let soundOn = safeGet(SOUND_KEY) !== "off";
 let progress = loadProgress();
 let syncCode = normalizeSyncCode(safeGet(SYNC_CODE_KEY) || "");
+let authToken = safeGet(AUTH_TOKEN_KEY) || "";
+let currentUser = null;
+let authConfig = null;
+let googleReadyTimer = null;
+let activeProgressOwner = "guest";
 let quiz = null;
 let toastTimer = null;
 let cloudSaveTimer = null;
@@ -247,8 +288,80 @@ function safeCount(value) {
   return Number.isFinite(number) ? Math.max(0, Math.trunc(number)) : 0;
 }
 
+function emptyActivity() {
+  return { xp: 0, correct: 0, wrong: 0, missions: 0, questions: 0 };
+}
+
+function normalizeHistory(source = {}) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+  const dates = Object.keys(source)
+    .filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date))
+    .sort()
+    .slice(-HISTORY_DAYS_LIMIT);
+  return Object.fromEntries(dates.map((date) => {
+    const categories = {};
+    SUBJECT_KEYS.forEach((subject) => {
+      const entry = source[date]?.[subject];
+      if (!entry) return;
+      categories[subject] = {
+        xp: safeCount(entry.xp),
+        correct: safeCount(entry.correct),
+        wrong: safeCount(entry.wrong),
+        missions: safeCount(entry.missions),
+        questions: safeCount(entry.questions)
+      };
+    });
+    return [date, categories];
+  }));
+}
+
+function mergeHistory(left = {}, right = {}) {
+  const result = {};
+  const dates = [...new Set([...Object.keys(left || {}), ...Object.keys(right || {})])]
+    .filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date))
+    .sort()
+    .slice(-HISTORY_DAYS_LIMIT);
+
+  dates.forEach((date) => {
+    const categories = {};
+    SUBJECT_KEYS.forEach((subject) => {
+      const local = left?.[date]?.[subject] || emptyActivity();
+      const remote = right?.[date]?.[subject] || emptyActivity();
+      const merged = {
+        xp: Math.max(safeCount(local.xp), safeCount(remote.xp)),
+        correct: Math.max(safeCount(local.correct), safeCount(remote.correct)),
+        wrong: Math.max(safeCount(local.wrong), safeCount(remote.wrong)),
+        missions: Math.max(safeCount(local.missions), safeCount(remote.missions)),
+        questions: Math.max(safeCount(local.questions), safeCount(remote.questions))
+      };
+      if (Object.values(merged).some(Boolean)) categories[subject] = merged;
+    });
+    if (Object.keys(categories).length) result[date] = categories;
+  });
+  return result;
+}
+
+function getActivity(levelProgress, date, subject) {
+  return levelProgress.history?.[date]?.[subject] || emptyActivity();
+}
+
+function recordActivity(levelProgress, subject, activity) {
+  const date = localDate();
+  levelProgress.history ||= {};
+  levelProgress.history[date] ||= {};
+  const current = levelProgress.history[date][subject] || emptyActivity();
+  levelProgress.history[date][subject] = {
+    xp: current.xp + safeCount(activity.xp),
+    correct: current.correct + safeCount(activity.correct),
+    wrong: current.wrong + safeCount(activity.wrong),
+    missions: current.missions + safeCount(activity.missions),
+    questions: current.questions + safeCount(activity.questions)
+  };
+  levelProgress.history = normalizeHistory(levelProgress.history);
+}
+
 function normalizeAgeProgress(source = {}) {
-  const normalized = { ...emptyProgress(), ...source, categories: emptyCategories() };
+  const normalized = { ...emptyProgress(), ...source, categories: emptyCategories(), history: normalizeHistory(source.history) };
   SUBJECT_KEYS.forEach((subject) => {
     const category = source.categories?.[subject] || {};
     normalized.categories[subject] = {
@@ -261,9 +374,9 @@ function normalizeAgeProgress(source = {}) {
   return normalized;
 }
 
-function loadProgress() {
+function loadProgress(storageKey = STORAGE_KEY) {
   let saved = {};
-  try { saved = JSON.parse(safeGet(STORAGE_KEY) || "{}"); } catch { saved = {}; }
+  try { saved = JSON.parse(safeGet(storageKey) || "{}"); } catch { saved = {}; }
 
   const result = {
     8: normalizeAgeProgress(saved[8] || {}),
@@ -278,9 +391,42 @@ function loadProgress() {
   return result;
 }
 
+function progressStorageKey(owner = activeProgressOwner) {
+  return owner === "guest" ? STORAGE_KEY : `${STORAGE_KEY}:user:${owner}`;
+}
+
 function saveProgress({ cloud = true } = {}) {
-  safeSet(STORAGE_KEY, JSON.stringify(progress));
-  if (cloud && syncCode) scheduleCloudSave();
+  safeSet(progressStorageKey(), JSON.stringify(progress));
+  if (cloud && (authToken || syncCode)) scheduleCloudSave();
+}
+
+function activateUserProgress(user) {
+  const owner = String(user?.id || "");
+  if (!owner || activeProgressOwner === owner) return;
+
+  safeSet(progressStorageKey(), JSON.stringify(progress));
+  const userStorageKey = progressStorageKey(owner);
+  const savedUserProgress = safeGet(userStorageKey);
+
+  if (savedUserProgress) {
+    progress = loadProgress(userStorageKey);
+  } else if (user.role !== "admin" && !safeGet(PROGRESS_MIGRATION_OWNER_KEY)) {
+    safeSet(PROGRESS_MIGRATION_OWNER_KEY, owner);
+    safeSet(userStorageKey, JSON.stringify(progress));
+  } else {
+    progress = { 8: emptyProgress(), 9: emptyProgress() };
+  }
+
+  activeProgressOwner = owner;
+  updateUI();
+}
+
+function activateGuestProgress() {
+  if (activeProgressOwner === "guest") return;
+  safeSet(progressStorageKey(), JSON.stringify(progress));
+  activeProgressOwner = "guest";
+  progress = loadProgress(STORAGE_KEY);
+  updateUI();
 }
 
 function normalizeSyncCode(value) {
@@ -334,7 +480,8 @@ function mergeProgress(localProgress, cloudProgress) {
       completed: Math.max(Number(local.completed) || 0, Number(remote.completed) || 0),
       correct: Math.max(Number(local.correct) || 0, Number(remote.correct) || 0),
       today: { date: today, count: Math.max(localToday, remoteToday) },
-      categories
+      categories,
+      history: mergeHistory(local.history, remote.history)
     };
   });
 
@@ -342,10 +489,11 @@ function mergeProgress(localProgress, cloudProgress) {
 }
 
 async function cloudRequest(method, body) {
-  const response = await fetch(PROGRESS_API_URL, {
+  const credential = authToken || syncCode;
+  const response = await fetch(`${apiBaseUrl}/api/progress`, {
     method,
     headers: {
-      authorization: `Bearer ${syncCode}`,
+      authorization: `Bearer ${credential}`,
       ...(body ? { "content-type": "application/json" } : {})
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -359,6 +507,26 @@ async function cloudRequest(method, body) {
     throw error;
   }
 
+  return payload;
+}
+
+async function apiRequest(path, { method = "GET", body, token = authToken, baseUrl = apiBaseUrl } = {}) {
+  const response = await fetch(`${baseUrl}${path}`, {
+    method,
+    headers: {
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+      ...(body ? { "content-type": "application/json" } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: "no-store"
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(payload.error || "Nie udało się połączyć z serwerem.");
+    error.status = response.status;
+    error.payload = payload;
+    throw error;
+  }
   return payload;
 }
 
@@ -377,7 +545,7 @@ function scheduleCloudSave() {
 }
 
 async function syncFromCloud(showMessage = true) {
-  if (!syncCode) return;
+  if (!authToken && !syncCode) return;
   setSyncState("syncing");
 
   try {
@@ -391,11 +559,18 @@ async function syncFromCloud(showMessage = true) {
     setSyncState("synced");
     if (showMessage) showToast("Wyniki zsynchronizowane ☁");
   } catch (error) {
-    if (error.status === 401) {
-      syncCode = "";
-      safeRemove(SYNC_CODE_KEY);
+    if (error.status === 401 || error.status === 403) {
+      if (authToken) {
+        authToken = "";
+        currentUser = null;
+        safeRemove(AUTH_TOKEN_KEY);
+        updateAccountUI();
+      } else {
+        syncCode = "";
+        safeRemove(SYNC_CODE_KEY);
+      }
       setSyncState("local");
-      if (showMessage) showToast("Ten kod synchronizacji jest nieprawidłowy");
+      if (showMessage) showToast(error.status === 403 ? "Konto nie ma dostępu do chmury" : "Dane logowania są nieprawidłowe");
       return;
     }
     setSyncState("error");
@@ -404,7 +579,7 @@ async function syncFromCloud(showMessage = true) {
 }
 
 async function connectCloudSync() {
-  if (syncCode) {
+  if (authToken || syncCode) {
     await syncFromCloud(true);
     return;
   }
@@ -545,11 +720,74 @@ function updateCategoryProgress() {
     </div>`).join("");
 }
 
+function updateDailyGoals() {
+  const current = progress[age];
+  const today = localDate();
+  els.subjectCards.forEach((card) => {
+    const activity = getActivity(current, today, card.dataset.subject);
+    const percent = Math.min(100, Math.round((activity.xp / DAILY_CATEGORY_GOAL) * 100));
+    card.querySelector("[data-daily-xp]").textContent = `${activity.xp} / ${DAILY_CATEGORY_GOAL} XP`;
+    card.querySelector("[data-daily-bar]").style.width = `${percent}%`;
+    card.classList.toggle("daily-goal-done", activity.xp >= DAILY_CATEGORY_GOAL);
+  });
+}
+
+function formatHistoryDate(date) {
+  const parsed = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return new Intl.DateTimeFormat("pl-PL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(parsed);
+}
+
+function updateHistoryView() {
+  const history = progress[age].history || {};
+  const dates = Object.keys(history).sort().reverse();
+  const totals = dates.reduce((sum, date) => {
+    Object.values(history[date] || {}).forEach((entry) => {
+      sum.xp += safeCount(entry.xp);
+      sum.missions += safeCount(entry.missions);
+      sum.questions += safeCount(entry.questions);
+    });
+    return sum;
+  }, { xp: 0, missions: 0, questions: 0 });
+
+  els.historyCopy.textContent = `Historia dla poziomu ${age} lat · dzienny cel każdej kategorii to ${DAILY_CATEGORY_GOAL} XP.`;
+  els.historySummary.innerHTML = `
+    <span><strong>${dates.length}</strong><small>aktywnych dni</small></span>
+    <span><strong>${totals.missions}</strong><small>misji</small></span>
+    <span><strong>${totals.questions}</strong><small>odpowiedzi</small></span>
+    <span><strong>${totals.xp}</strong><small>XP kategorii</small></span>`;
+
+  if (!dates.length) {
+    els.historyList.innerHTML = `<div class="history-empty"><span>📭</span><strong>Historia jest jeszcze pusta</strong><p>Ukończ pierwszą misję, a pojawi się tutaj jej data, XP i liczba odpowiedzi.</p></div>`;
+    return;
+  }
+
+  els.historyList.innerHTML = dates.map((date) => {
+    const categories = history[date];
+    const entries = SUBJECT_KEYS.filter((subject) => categories[subject]).map((subject) => {
+      const meta = SUBJECTS[subject];
+      const entry = categories[subject];
+      const goalPercent = Math.min(100, Math.round((entry.xp / DAILY_CATEGORY_GOAL) * 100));
+      return `
+        <div class="history-category-row" style="--subject-color: ${meta.color}">
+          <span class="history-category-icon" aria-hidden="true">${meta.icon}</span>
+          <span class="history-category-copy"><strong>${meta.name}</strong><small>${entry.missions} misji · ${entry.questions} odpowiedzi · ${entry.correct} dobrych · ${entry.wrong} złych</small></span>
+          <span class="history-category-xp"><strong>+${entry.xp} XP</strong><small>${goalPercent}% celu</small></span>
+        </div>`;
+    }).join("");
+    return `<article class="history-day"><div class="history-day-heading"><strong>${formatHistoryDate(date)}</strong><span>${date}</span></div>${entries}</article>`;
+  }).join("");
+}
+
 function updateModalLock() {
   const anyModalOpen = !els.ageModal.hidden
     || !els.syncModal.hidden
     || !els.questionCountModal.hidden
     || !els.levelsModal.hidden
+    || !els.historyModal.hidden
+    || !els.authModal.hidden
+    || !els.accountModal.hidden
+    || !els.adminModal.hidden
     || !els.quizOverlay.hidden;
   document.body.classList.toggle("modal-open", anyModalOpen);
 }
@@ -582,6 +820,21 @@ function closeLevelsDialog() {
   els.levelsToggle.setAttribute("aria-expanded", "false");
   updateModalLock();
   els.levelsToggle.focus();
+}
+
+function openHistoryDialog() {
+  updateHistoryView();
+  els.historyModal.hidden = false;
+  els.historyToggle.setAttribute("aria-expanded", "true");
+  document.body.classList.add("modal-open");
+  window.setTimeout(() => els.historyClose.focus(), 30);
+}
+
+function closeHistoryDialog() {
+  els.historyModal.hidden = true;
+  els.historyToggle.setAttribute("aria-expanded", "false");
+  updateModalLock();
+  els.historyToggle.focus();
 }
 
 function updateUI() {
@@ -618,6 +871,8 @@ function updateUI() {
 
   updateQuestionCounts();
   updateCategoryProgress();
+  updateDailyGoals();
+  els.motivationTitle.textContent = window.TYMO_CONTENT.dailyMotivation();
 
   els.ageOptions.forEach((option) => option.classList.toggle("selected", Number(option.dataset.age) === age));
   els.soundToggle.setAttribute("aria-pressed", String(soundOn));
@@ -785,6 +1040,13 @@ function finishQuiz() {
     stats.correct += result.correct;
     stats.wrong += result.wrong;
     if (!quiz.isMix && subject === quiz.subject) stats.completed += 1;
+    recordActivity(current, subject, {
+      xp: earned,
+      correct: result.correct,
+      wrong: result.wrong,
+      missions: 1,
+      questions: result.correct + result.wrong
+    });
     categoryXpEarned += earned;
   });
   current.xp += quiz.earned;
@@ -879,6 +1141,292 @@ function burstConfetti(amount) {
   }
 }
 
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function showAuthMessage(message, kind = "info") {
+  els.authMessage.hidden = !message;
+  els.authMessage.className = `auth-message ${kind}`;
+  els.authMessage.textContent = message;
+}
+
+function updateAccountUI() {
+  if (!currentUser) {
+    els.accountAvatar.textContent = "G";
+    els.accountName.textContent = "Zaloguj się";
+    els.accountStatus.textContent = authConfig?.googleClientId ? "Konto Google" : "Google do konfiguracji";
+    els.adminToggle.hidden = true;
+    return;
+  }
+
+  const initial = (currentUser.name || currentUser.email || "G").trim().charAt(0).toUpperCase();
+  els.accountAvatar.textContent = initial;
+  els.accountName.textContent = currentUser.name || currentUser.email;
+  els.accountStatus.textContent = currentUser.role === "admin" ? "Administrator" : currentUser.status === "approved" ? "Konto aktywne" : "Czeka na akceptację";
+  els.accountProfileAvatar.textContent = initial;
+  els.accountTitle.textContent = currentUser.name || "Konto Google";
+  els.accountEmail.textContent = currentUser.email;
+  els.accountState.className = `account-state ${currentUser.status}`;
+  els.accountState.textContent = currentUser.role === "admin"
+    ? "Masz dostęp do panelu administratora i zarządzania kontami."
+    : currentUser.status === "approved"
+      ? "Konto zaakceptowane. Wyniki zapisują się w Twojej chmurze."
+      : "Konto czeka na akceptację administratora.";
+  els.adminToggle.hidden = currentUser.role !== "admin";
+}
+
+function openAuthDialog() {
+  els.authModal.hidden = false;
+  els.accountToggle.setAttribute("aria-expanded", "true");
+  document.body.classList.add("modal-open");
+  if (!authConfig?.googleClientId) {
+    showAuthMessage("Logowanie Google jest przygotowane, ale wymaga jeszcze identyfikatora OAuth Client ID z Google Cloud.", "warning");
+  }
+}
+
+function closeAuthDialog() {
+  if (authConfig?.authEnabled && !(currentUser?.status === "approved" || currentUser?.role === "admin")) return;
+  els.authModal.hidden = true;
+  els.accountToggle.setAttribute("aria-expanded", "false");
+  updateModalLock();
+  els.accountToggle.focus();
+}
+
+function enforceAuthAccess() {
+  const approved = currentUser?.status === "approved" || currentUser?.role === "admin";
+  const required = Boolean(authConfig?.authEnabled && !approved);
+  els.authClose.hidden = required;
+  document.body.classList.toggle("auth-required", required);
+
+  if (!required) return;
+  openAuthDialog();
+  if (currentUser?.status === "pending") {
+    showAuthMessage("Konto czeka na akceptację administratora. Po akceptacji kliknij przycisk poniżej.", "warning");
+    els.authRefresh.hidden = false;
+  } else {
+    els.authRefresh.hidden = true;
+    showAuthMessage("Aby korzystać z TymoMocy, zaloguj się zaakceptowanym kontem Google.", "info");
+  }
+}
+
+function openAccountDialog() {
+  updateAccountUI();
+  els.accountModal.hidden = false;
+  els.accountToggle.setAttribute("aria-expanded", "true");
+  document.body.classList.add("modal-open");
+  window.setTimeout(() => els.accountClose.focus(), 30);
+}
+
+function closeAccountDialog() {
+  els.accountModal.hidden = true;
+  els.accountToggle.setAttribute("aria-expanded", "false");
+  updateModalLock();
+  els.accountToggle.focus();
+}
+
+function renderGoogleButton() {
+  if (!authConfig?.googleClientId) return;
+  window.clearTimeout(googleReadyTimer);
+  let attempts = 0;
+  const tryRender = () => {
+    attempts += 1;
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.initialize({
+        client_id: authConfig.googleClientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+      els.googleSignin.innerHTML = "";
+      window.google.accounts.id.renderButton(els.googleSignin, {
+        type: "standard",
+        theme: "filled_blue",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        width: Math.min(360, Math.max(240, els.googleSignin.clientWidth || 320)),
+        locale: "pl"
+      });
+      return;
+    }
+    if (attempts < 50) googleReadyTimer = window.setTimeout(tryRender, 120);
+    else showAuthMessage("Nie udało się załadować przycisku Google. Sprawdź połączenie i odśwież stronę.", "error");
+  };
+  tryRender();
+}
+
+async function handleGoogleCredential(response) {
+  if (!response?.credential) return;
+  showAuthMessage("Sprawdzam konto Google…", "info");
+  try {
+    const payload = await apiRequest("/api/auth/google", {
+      method: "POST",
+      body: { credential: response.credential },
+      token: ""
+    });
+    authToken = payload.token;
+    currentUser = payload.user;
+    safeSet(AUTH_TOKEN_KEY, authToken);
+    updateAccountUI();
+    if (currentUser.status === "approved" || currentUser.role === "admin") {
+      activateUserProgress(currentUser);
+      showAuthMessage("Konto aktywne. Ładuję wyniki…", "success");
+      await syncFromCloud(false);
+      closeAuthDialog();
+      showToast(`Witaj, ${currentUser.name || currentUser.email}!`);
+    } else {
+      showAuthMessage("Konto utworzone. Administrator musi je teraz zaakceptować.", "warning");
+      els.authRefresh.hidden = false;
+      enforceAuthAccess();
+    }
+  } catch (error) {
+    showAuthMessage(error.message, "error");
+  }
+}
+
+async function refreshSession({ quiet = false } = {}) {
+  if (!authToken) return false;
+  try {
+    const payload = await apiRequest("/api/session");
+    currentUser = payload.user;
+    updateAccountUI();
+    if (currentUser.status === "approved" || currentUser.role === "admin") {
+      activateUserProgress(currentUser);
+      els.authRefresh.hidden = true;
+      if (!quiet) {
+        await syncFromCloud(false);
+        closeAuthDialog();
+        showToast("Konto zostało zaakceptowane ✓");
+      }
+      return true;
+    }
+    if (!quiet) showAuthMessage("Konto nadal czeka na akceptację administratora.", "warning");
+    return false;
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      authToken = "";
+      currentUser = null;
+      safeRemove(AUTH_TOKEN_KEY);
+      updateAccountUI();
+    }
+    enforceAuthAccess();
+    if (!quiet) showAuthMessage(error.message, "error");
+    return false;
+  }
+}
+
+async function initializeAuth() {
+  try {
+    const sameOriginConfig = await apiRequest("/api/config", { token: "", baseUrl: window.location.origin });
+    if (typeof sameOriginConfig.authEnabled !== "boolean") throw new Error("Brak API pod tym adresem.");
+    apiBaseUrl = window.location.origin;
+    authConfig = sameOriginConfig;
+  } catch {
+    try {
+      authConfig = await apiRequest("/api/config", { token: "", baseUrl: FALLBACK_API_BASE_URL });
+      apiBaseUrl = FALLBACK_API_BASE_URL;
+    } catch {
+      authConfig = { googleClientId: "", authEnabled: false };
+    }
+  }
+  updateAccountUI();
+  renderGoogleButton();
+  if (authToken) {
+    const active = await refreshSession({ quiet: true });
+    if (active) await syncFromCloud(false);
+  }
+  enforceAuthAccess();
+}
+
+async function logout() {
+  try { if (authToken) await apiRequest("/api/logout", { method: "POST" }); } catch { /* Sesja i tak zostanie usunięta lokalnie. */ }
+  authToken = "";
+  currentUser = null;
+  safeRemove(AUTH_TOKEN_KEY);
+  activateGuestProgress();
+  updateAccountUI();
+  closeAccountDialog();
+  setSyncState(syncCode ? "waiting" : "local");
+  enforceAuthAccess();
+  showToast("Wylogowano z konta Google");
+}
+
+function renderAdminUsers(users = []) {
+  const counts = users.reduce((result, user) => {
+    result[user.status] = (result[user.status] || 0) + 1;
+    return result;
+  }, {});
+  els.adminSummary.innerHTML = `
+    <span><strong>${users.length}</strong><small>wszystkich kont</small></span>
+    <span><strong>${counts.pending || 0}</strong><small>czeka na zgodę</small></span>
+    <span><strong>${counts.approved || 0}</strong><small>aktywnych</small></span>
+    <span><strong>${counts.banned || 0}</strong><small>zablokowanych</small></span>`;
+
+  els.adminUsers.innerHTML = users.length ? users.map((user) => {
+    const self = user.email?.toLowerCase() === currentUser?.email?.toLowerCase();
+    const statusLabel = { pending: "Oczekuje", approved: "Aktywne", banned: "Zablokowane" }[user.status] || user.status;
+    return `
+      <article class="admin-user-card" data-user-id="${user.id}">
+        <span class="admin-user-avatar">${escapeHTML((user.name || user.email || "U").charAt(0).toUpperCase())}</span>
+        <span class="admin-user-copy"><strong>${escapeHTML(user.name || "Użytkownik Google")}</strong><small>${escapeHTML(user.email)}</small><em>Utworzone: ${escapeHTML(user.createdAt || "—")} · ostatnie logowanie: ${escapeHTML(user.lastLoginAt || "—")}</em></span>
+        <span class="admin-user-status ${escapeHTML(user.status)}">${escapeHTML(statusLabel)}</span>
+        <span class="admin-user-actions">
+          ${user.status !== "approved" && !self ? `<button type="button" data-admin-action="approve">${user.status === "banned" ? "Odblokuj" : "Akceptuj"}</button>` : ""}
+          ${user.status !== "banned" && !self ? `<button class="danger" type="button" data-admin-action="ban">Zablokuj i wyloguj</button>` : ""}
+        </span>
+      </article>`;
+  }).join("") : `<div class="history-empty"><span>👥</span><strong>Brak użytkowników</strong></div>`;
+}
+
+async function loadAdminUsers() {
+  els.adminUsers.innerHTML = `<div class="admin-loading">Ładuję konta…</div>`;
+  try {
+    const payload = await apiRequest("/api/admin/users");
+    renderAdminUsers(payload.users);
+  } catch (error) {
+    els.adminUsers.innerHTML = `<div class="auth-message error">${escapeHTML(error.message)}</div>`;
+  }
+}
+
+async function openAdminDialog() {
+  if (currentUser?.role !== "admin") return;
+  els.adminModal.hidden = false;
+  els.adminToggle.setAttribute("aria-expanded", "true");
+  document.body.classList.add("modal-open");
+  await loadAdminUsers();
+}
+
+function closeAdminDialog() {
+  els.adminModal.hidden = true;
+  els.adminToggle.setAttribute("aria-expanded", "false");
+  updateModalLock();
+  els.adminToggle.focus();
+}
+
+async function handleAdminAction(event) {
+  const button = event.target.closest("[data-admin-action]");
+  if (!button) return;
+  const card = button.closest("[data-user-id]");
+  const action = button.dataset.adminAction;
+  const userId = Number(card.dataset.userId);
+  if (action === "ban" && !window.confirm("Zablokować to konto i natychmiast wylogować użytkownika?")) return;
+  button.disabled = true;
+  try {
+    await apiRequest(`/api/admin/users/${userId}/status`, { method: "PUT", body: { action } });
+    await loadAdminUsers();
+    showToast(action === "approve" ? "Konto zaakceptowane ✓" : "Konto zablokowane");
+  } catch (error) {
+    showToast(error.message);
+    button.disabled = false;
+  }
+}
+
 els.ageOptions.forEach((option) => option.addEventListener("click", () => chooseAge(option.dataset.age)));
 els.ageSwitch.addEventListener("click", openAgeDialog);
 els.ageClose.addEventListener("click", () => {
@@ -891,6 +1439,16 @@ els.questionCountToggle.addEventListener("click", openQuestionCountDialog);
 els.questionCountClose.addEventListener("click", closeQuestionCountDialog);
 els.levelsToggle.addEventListener("click", openLevelsDialog);
 els.levelsClose.addEventListener("click", closeLevelsDialog);
+els.historyToggle.addEventListener("click", openHistoryDialog);
+els.historyClose.addEventListener("click", closeHistoryDialog);
+els.accountToggle.addEventListener("click", () => currentUser ? openAccountDialog() : openAuthDialog());
+els.authClose.addEventListener("click", closeAuthDialog);
+els.authRefresh.addEventListener("click", () => refreshSession());
+els.accountClose.addEventListener("click", closeAccountDialog);
+els.logoutButton.addEventListener("click", logout);
+els.adminToggle.addEventListener("click", openAdminDialog);
+els.adminClose.addEventListener("click", closeAdminDialog);
+els.adminUsers.addEventListener("click", handleAdminAction);
 els.randomMission.addEventListener("click", () => {
   const subjects = Object.keys(QUESTION_BANK[age]);
   const random = subjects[Math.floor(Math.random() * subjects.length)];
@@ -925,6 +1483,10 @@ document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   if (!els.quizOverlay.hidden) closeQuiz();
   else if (!els.syncModal.hidden) closeSyncDialog();
+  else if (!els.adminModal.hidden) closeAdminDialog();
+  else if (!els.accountModal.hidden) closeAccountDialog();
+  else if (!els.authModal.hidden) closeAuthDialog();
+  else if (!els.historyModal.hidden) closeHistoryDialog();
   else if (!els.levelsModal.hidden) closeLevelsDialog();
   else if (!els.questionCountModal.hidden) closeQuestionCountDialog();
   else if (!els.ageModal.hidden) closeAgeDialog();
@@ -939,3 +1501,4 @@ if (safeGet(AGE_KEY)) {
 }
 
 if (syncCode) void syncFromCloud(false);
+void initializeAuth();
