@@ -350,9 +350,11 @@ const FALLBACK_API_BASE_URL = "https://tymomoc-api.damianolbrys5.workers.dev";
 let apiBaseUrl = FALLBACK_API_BASE_URL;
 
 const els = {
+  languagePicker: document.querySelector("#language-picker"),
   languageToggle: document.querySelector("#language-toggle"),
+  languageMenu: document.querySelector("#language-menu"),
+  languageOptions: [...document.querySelectorAll(".language-option")],
   languageFlag: document.querySelector("#language-flag"),
-  languageCode: document.querySelector("#language-code"),
   ageModal: document.querySelector("#age-modal"),
   ageClose: document.querySelector("#age-close"),
   ageSwitch: document.querySelector("#age-switch"),
@@ -546,9 +548,9 @@ function applyLanguageShell() {
   ));
 
   els.languageFlag.textContent = localized("🇵🇱", "🇩🇪", "🇬🇧");
-  els.languageCode.textContent = language.toUpperCase();
-  els.languageToggle.title = localized("Język: polski", "Sprache: Deutsch", "Language: English");
-  els.languageToggle.setAttribute("aria-label", localized("Zmień język na niemiecki", "Sprache auf Englisch ändern", "Switch language to Polish"));
+  els.languageToggle.title = localized("Wybierz język", "Sprache auswählen", "Choose language");
+  els.languageToggle.setAttribute("aria-label", localized("Wybierz język", "Sprache auswählen", "Choose language"));
+  els.languageMenu.setAttribute("aria-label", localized("Wybór języka", "Sprachauswahl", "Language selection"));
 
   document.querySelector(".hero-copy > p").textContent = localized(
     "Krótkie misje, szybkie punkty i zero nudy. Matematyka, polski, angielski i świat — wszystko dopasowane do wieku.",
@@ -574,11 +576,50 @@ function applyLanguageShell() {
   });
 
   translateStaticText();
+  const languageChoices = {
+    pl: { flag: "🇵🇱", name: "Polski", country: "Polska" },
+    de: { flag: "🇩🇪", name: "Deutsch", country: "Deutschland" },
+    en: { flag: "🇬🇧", name: "English", country: "United Kingdom" }
+  };
+  els.languageOptions.forEach((option) => {
+    const choice = languageChoices[option.dataset.language];
+    option.querySelector(".language-option-flag").textContent = choice.flag;
+    option.querySelector("strong").textContent = choice.name;
+    option.querySelector("small").textContent = choice.country;
+    option.setAttribute("aria-checked", String(option.dataset.language === language));
+  });
   renderTrainers();
 }
 
-function toggleLanguage() {
-  language = language === "pl" ? "de" : language === "de" ? "en" : "pl";
+function closeLanguageMenu({ restoreFocus = false } = {}) {
+  if (els.languageMenu.hidden) return;
+  els.languageMenu.hidden = true;
+  els.languageToggle.setAttribute("aria-expanded", "false");
+  if (restoreFocus) els.languageToggle.focus();
+}
+
+function openLanguageMenu() {
+  els.languageMenu.hidden = false;
+  els.languageToggle.setAttribute("aria-expanded", "true");
+  els.languageOptions.forEach((option) => {
+    option.setAttribute("aria-checked", String(option.dataset.language === language));
+  });
+  window.requestAnimationFrame(() => {
+    els.languageOptions.find((option) => option.dataset.language === language)?.focus();
+  });
+}
+
+function toggleLanguageMenu() {
+  if (els.languageMenu.hidden) openLanguageMenu();
+  else closeLanguageMenu({ restoreFocus: true });
+}
+
+function chooseLanguage(nextLanguage) {
+  if (!["pl", "de", "en"].includes(nextLanguage)) return;
+  const changed = nextLanguage !== language;
+  closeLanguageMenu({ restoreFocus: true });
+  if (!changed) return;
+  language = nextLanguage;
   safeSet(LANGUAGE_KEY, language);
   updateUI();
   setSyncState(syncCode ? "waiting" : "local");
@@ -1808,7 +1849,22 @@ async function handleAdminAction(event) {
 }
 
 els.ageOptions.forEach((option) => option.addEventListener("click", () => chooseAge(option.dataset.age)));
-els.languageToggle.addEventListener("click", toggleLanguage);
+els.languageToggle.addEventListener("click", toggleLanguageMenu);
+els.languageOptions.forEach((option) => option.addEventListener("click", () => chooseLanguage(option.dataset.language)));
+els.languageMenu.addEventListener("keydown", (event) => {
+  const currentIndex = els.languageOptions.indexOf(document.activeElement);
+  let nextIndex = currentIndex;
+  if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % els.languageOptions.length;
+  else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + els.languageOptions.length) % els.languageOptions.length;
+  else if (event.key === "Home") nextIndex = 0;
+  else if (event.key === "End") nextIndex = els.languageOptions.length - 1;
+  else return;
+  event.preventDefault();
+  els.languageOptions[nextIndex].focus();
+});
+document.addEventListener("click", (event) => {
+  if (!els.languagePicker.contains(event.target)) closeLanguageMenu();
+});
 els.ageSwitch.addEventListener("click", openAgeDialog);
 els.ageClose.addEventListener("click", () => {
   if (!safeGet(AGE_KEY)) safeSet(AGE_KEY, String(age));
@@ -1866,7 +1922,8 @@ els.resetProgress.addEventListener("click", () => {
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
-  if (!els.quizOverlay.hidden) closeQuiz();
+  if (!els.languageMenu.hidden) closeLanguageMenu({ restoreFocus: true });
+  else if (!els.quizOverlay.hidden) closeQuiz();
   else if (!els.syncModal.hidden) closeSyncDialog();
   else if (!els.adminModal.hidden) closeAdminDialog();
   else if (!els.accountModal.hidden) closeAccountDialog();

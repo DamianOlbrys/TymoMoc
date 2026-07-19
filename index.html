@@ -28,10 +28,30 @@
       </a>
 
       <div class="top-actions">
-        <button class="icon-button language-button" id="language-toggle" type="button" aria-label="Zmień język na niemiecki" title="Język: polski">
-          <span class="language-flag" id="language-flag" aria-hidden="true">🇵🇱</span>
-          <small id="language-code">PL</small>
-        </button>
+        <div class="language-picker" id="language-picker">
+          <button class="icon-button language-button" id="language-toggle" type="button" aria-label="Wybierz język" aria-haspopup="menu" aria-expanded="false" title="Wybierz język">
+            <span class="language-globe" aria-hidden="true">🌐</span>
+            <span class="language-flag" id="language-flag" aria-hidden="true">🇵🇱</span>
+          </button>
+
+          <div class="language-menu" id="language-menu" role="menu" aria-label="Wybór języka" hidden>
+            <button class="language-option" type="button" role="menuitemradio" aria-checked="true" data-language="pl">
+              <span class="language-option-flag" aria-hidden="true">🇵🇱</span>
+              <span class="language-option-copy"><strong>Polski</strong><small>Polska</small></span>
+              <span class="language-check" aria-hidden="true">✓</span>
+            </button>
+            <button class="language-option" type="button" role="menuitemradio" aria-checked="false" data-language="de">
+              <span class="language-option-flag" aria-hidden="true">🇩🇪</span>
+              <span class="language-option-copy"><strong>Deutsch</strong><small>Deutschland</small></span>
+              <span class="language-check" aria-hidden="true">✓</span>
+            </button>
+            <button class="language-option" type="button" role="menuitemradio" aria-checked="false" data-language="en">
+              <span class="language-option-flag" aria-hidden="true">🇬🇧</span>
+              <span class="language-option-copy"><strong>English</strong><small>United Kingdom</small></span>
+              <span class="language-check" aria-hidden="true">✓</span>
+            </button>
+          </div>
+        </div>
 
         <button class="age-pill" id="age-switch" type="button" aria-label="Zmień wiek">
           <span aria-hidden="true">⚡</span>
