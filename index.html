@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#100d2d" />
+    <meta
+      name="description"
+      content="TymoMoc — kolorowe misje edukacyjne dla dzieci w wieku 8 i 9 lat."
+    />
+    <title>TymoMoc — nauka w trybie turbo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#misje">Przejdź do misji</a>
+
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <header class="topbar shell">
+      <a class="brand" href="#start" aria-label="TymoMoc — strona główna">
+        <span class="brand-mark" aria-hidden="true">T</span>
+        <span>
+          <strong>TymoMoc</strong>
+          <small>Nauka w trybie turbo</small>
+        </span>
+      </a>
+
+      <div class="top-actions">
+        <button class="age-pill" id="age-switch" type="button" aria-label="Zmień wiek">
+          <span aria-hidden="true">⚡</span>
+          <span><strong id="top-age">8 lat</strong><small>Zmień poziom</small></span>
+        </button>
+
+        <div class="score-pill" aria-label="Zdobyte punkty doświadczenia">
+          <span class="score-icon" aria-hidden="true">✦</span>
+          <span><strong id="xp-count">0 XP</strong><small>Twój wynik</small></span>
+        </div>
+
+        <button class="icon-button" id="sound-toggle" type="button" aria-label="Wyłącz dźwięki" aria-pressed="true">
+          <span id="sound-icon" aria-hidden="true">♪</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell" id="start">
+        <div class="hero-copy">
+          <div class="eyebrow"><span></span> Dzisiaj mózg robi salto</div>
+          <h1>Odpal tryb<br /><em>TurboMózg!</em></h1>
+          <p>
+            Krótkie misje, szybkie punkty i zero nudy. Matematyka, polski,
+            angielski i świat — wszystko dopasowane do wieku.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-button" href="#misje">Wybieram misję <span aria-hidden="true">→</span></a>
+            <button class="ghost-button" id="random-mission" type="button">
+              <span aria-hidden="true">🎲</span> Losuj wyzwanie
+            </button>
+          </div>
+          <div class="mini-proof">
+            <div class="avatar-stack" aria-hidden="true"><span>🦫</span><span>🤖</span><span>🪐</span></div>
+            <p><strong>5 minut dziennie</strong><br />robi wielką różnicę</p>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Aksolotl, kapibara i tostobot ruszają na edukacyjną misję">
+          <img src="assets/hero-mascots.png" alt="Trzy zabawne maskotki w kosmicznym świecie nauki" />
+          <div class="floating-chip chip-one"><span>+10 XP</span><small>za dobrą odpowiedź</small></div>
+          <div class="floating-chip chip-two"><span id="hero-streak">0 🔥</span><small>seria misji</small></div>
+        </div>
+      </section>
+
+      <section class="missions shell" id="misje">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">CENTRUM DOWODZENIA</span>
+            <h2>Wybierz swoją misję</h2>
+            <p id="level-copy">Poziom dla 8 lat · zadania krótkie i konkretne</p>
+          </div>
+          <div class="today-status">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span><strong id="today-count">0/3 misje</strong><small>dzisiejszy cel</small></span>
+          </div>
+        </div>
+
+        <div class="subject-grid">
+          <button class="subject-card subject-math" type="button" data-subject="math">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">÷</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Matma<br />Bez Spiny</span>
+            <span class="subject-desc" id="math-desc">Dodawanie, mnożenie i sprytne zagadki</span>
+            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+          </button>
+
+          <button class="subject-card subject-polish" type="button" data-subject="polish">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">Ą</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Polski<br />Kombinator</span>
+            <span class="subject-desc" id="polish-desc">Ortografia, części mowy i słowne wygibasy</span>
+            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+          </button>
+
+          <button class="subject-card subject-english" type="button" data-subject="english">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">Hi!</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">English<br />Level Up</span>
+            <span class="subject-desc" id="english-desc">Słówka, zdania i codzienne zwroty</span>
+            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+          </button>
+
+          <button class="subject-card subject-world" type="button" data-subject="world">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">◎</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Świat<br />Na Opak</span>
+            <span class="subject-desc" id="world-desc">Przyroda, kosmos, geografia i logika</span>
+            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="daily shell" aria-labelledby="daily-title">
+        <div class="daily-card">
+          <div class="daily-copy">
+            <span class="kicker">MISJA SPECJALNA</span>
+            <h2 id="daily-title">Chaos Mix</h2>
+            <p>Po jednym pytaniu z każdego świata. Kapibara Profesara twierdzi, że dasz radę.</p>
+            <button class="secondary-button" id="mix-mission" type="button">Odpal miks <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="mix-orbit" aria-hidden="true">
+            <span class="orbit orbit-one"></span>
+            <span class="orbit orbit-two"></span>
+            <span class="mix-core">🧠</span>
+            <span class="orbit-item item-one">7</span>
+            <span class="orbit-item item-two">A</span>
+            <span class="orbit-item item-three">?</span>
+          </div>
+          <div class="daily-reward">
+            <small>NAGRODA</small>
+            <strong>+75 XP</strong>
+            <span>za komplet</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="crew shell" aria-labelledby="crew-title">
+        <div class="section-heading compact">
+          <div>
+            <span class="kicker">EKIPA TYMOMOCY</span>
+            <h2 id="crew-title">Poznaj swoich trenerów</h2>
+          </div>
+        </div>
+        <div class="crew-grid">
+          <article class="crew-card">
+            <span class="crew-emoji" aria-hidden="true">🪐</span>
+            <div><h3>Aksolot Kalkulot</h3><p>Liczy szybciej, niż leci asteroida.</p></div>
+            <span class="crew-tag">MATMA</span>
+          </article>
+          <article class="crew-card">
+            <span class="crew-emoji" aria-hidden="true">🦫</span>
+            <div><h3>Kapibara Profesara</h3><p>Spokojna głowa, nawet przy „ó” i „u”.</p></div>
+            <span class="crew-tag">SŁOWA</span>
+          </article>
+          <article class="crew-card">
+            <span class="crew-emoji" aria-hidden="true">🍞</span>
+            <div><h3>Tostobot Książkator</h3><p>Wyskakuje z wiedzą zawsze na czas.</p></div>
+            <span class="crew-tag">ŚWIAT</span>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer shell">
+      <div class="brand mini"><span class="brand-mark" aria-hidden="true">T</span><strong>TymoMoc</strong></div>
+      <p>Zrobione z ciekawością dla Tymona.</p>
+      <button id="reset-progress" type="button">Wyzeruj mój postęp</button>
+    </footer>
+
+    <div class="modal-backdrop" id="age-modal" role="dialog" aria-modal="true" aria-labelledby="age-title">
+      <div class="age-dialog">
+        <button class="modal-close" id="age-close" type="button" aria-label="Zamknij wybór wieku">×</button>
+        <div class="dialog-spark" aria-hidden="true">✦</div>
+        <span class="kicker">USTAW SWÓJ POZIOM</span>
+        <h2 id="age-title">Ile masz lat?</h2>
+        <p>Dopasujemy trudność misji. Możesz zmienić poziom w każdej chwili.</p>
+        <div class="age-options">
+          <button class="age-option" type="button" data-age="8">
+            <span class="age-number">8</span><span><strong>8 lat</strong><small>Startowa moc</small></span><span class="select-arrow">→</span>
+          </button>
+          <button class="age-option" type="button" data-age="9">
+            <span class="age-number">9</span><span><strong>9 lat</strong><small>Więcej wyzwań</small></span><span class="select-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-overlay" id="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="question-title" hidden>
+      <div class="quiz-shell">
+        <button class="quiz-close" id="quiz-close" type="button" aria-label="Zamknij misję">×</button>
+        <div class="quiz-head">
+          <div class="quiz-brand"><span id="quiz-icon">÷</span><span><small id="quiz-kicker">MISJA</small><strong id="quiz-subject">Matma bez spiny</strong></span></div>
+          <div class="quiz-xp">✦ <strong id="quiz-earned">0 XP</strong></div>
+        </div>
+        <div class="progress-track" aria-label="Postęp misji"><span id="quiz-progress"></span></div>
+        <div class="question-meta"><span id="question-number">PYTANIE 1 Z 5</span><span id="level-badge">POZIOM 8 LAT</span></div>
+        <section class="question-card" id="question-card">
+          <div class="question-mascot" id="question-mascot" aria-hidden="true">🪐</div>
+          <p class="question-prompt" id="question-prompt">Gotowy?</p>
+          <h2 id="question-title">Ile to jest 7 + 8?</h2>
+          <div class="answers-grid" id="answers"></div>
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+          <button class="next-button" id="next-question" type="button" hidden>Następne pytanie <span>→</span></button>
+        </section>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
