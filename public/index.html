@@ -37,6 +37,10 @@
           <span><strong id="xp-count">0 XP</strong><small>Twój wynik</small></span>
         </div>
 
+        <button class="icon-button level-button" id="levels-toggle" type="button" aria-label="Sprawdź poziomy kategorii i progi XP" aria-haspopup="dialog" aria-expanded="false">
+          <span aria-hidden="true">🏆</span>
+        </button>
+
         <button class="icon-button sync-button" id="sync-toggle" type="button" aria-label="Połącz zapis wyników z chmurą">
           <span id="sync-icon" aria-hidden="true">☁</span>
         </button>
@@ -85,7 +89,7 @@
           <div class="mission-summary-actions">
             <button class="question-count-button" id="question-count-toggle" type="button" aria-haspopup="dialog" aria-expanded="false">
               <span class="question-count-icon" aria-hidden="true">🗂</span>
-              <span><strong id="question-count-total">28 pytań</strong><small>Zobacz bazę pytań</small></span>
+              <span><strong id="question-count-total">49 pytań</strong><small>Zobacz bazę pytań</small></span>
             </button>
             <div class="today-status">
               <span class="pulse-dot" aria-hidden="true"></span>
@@ -126,6 +130,30 @@
             <span class="subject-desc" id="world-desc">Przyroda, kosmos, geografia i logika</span>
             <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●○</span></span>
           </button>
+
+          <button class="subject-card subject-logic" type="button" data-subject="logic">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">◇</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Logika<br />Bez Luk</span>
+            <span class="subject-desc" id="logic-desc">Wzory, szyfry, kolejność i sprytne wnioski</span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●●</span></span>
+          </button>
+
+          <button class="subject-card subject-reading" type="button" data-subject="reading">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">Aa</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Czytam<br />I Kumam</span>
+            <span class="subject-desc" id="reading-desc">Krótkie teksty, tropienie informacji i wnioski</span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●○</span></span>
+          </button>
+
+          <button class="subject-card subject-coding" type="button" data-subject="coding">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">{ }</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Kodowanie<br />Od Zera</span>
+            <span class="subject-desc" id="coding-desc">Algorytmy, pętle, warunki i łapanie błędów</span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●●</span></span>
+          </button>
         </div>
       </section>
 
@@ -147,7 +175,7 @@
           </div>
           <div class="daily-reward">
             <small>NAGRODA</small>
-            <strong>+75 XP</strong>
+            <strong>+95 XP</strong>
             <span>za komplet</span>
           </div>
         </div>
@@ -217,6 +245,7 @@
         <span class="kicker">RODZINNA CHMURA</span>
         <h2 id="sync-title">Zapisz wyniki na zawsze</h2>
         <p>Wpisz prywatny kod rodzinny. Wystarczy zrobić to raz na każdym urządzeniu.</p>
+        <div class="sync-code-help"><strong>Skąd wziąć kod?</strong><span>Kod ustala rodzic podczas konfiguracji rodzinnej chmury. Używaj tego samego kodu na każdym urządzeniu — nie publikuj go.</span></div>
         <label class="sync-code-field">
           <span>Kod synchronizacji</span>
           <input id="sync-code-input" name="sync-code" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="TYMO-XXXX-XXXX-XXXX-XXXX" required />
@@ -235,8 +264,26 @@
         <div class="question-count-list" id="question-count-list"></div>
         <div class="question-count-summary">
           <span>Wszystkie kategorie</span>
-          <strong id="question-count-modal-total">28 pytań</strong>
+          <strong id="question-count-modal-total">49 pytań</strong>
         </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="levels-modal" role="dialog" aria-modal="true" aria-labelledby="levels-title" hidden>
+      <div class="age-dialog levels-dialog">
+        <button class="modal-close" id="levels-close" type="button" aria-label="Zamknij poziomy kategorii">×</button>
+        <div class="dialog-spark levels-spark" aria-hidden="true">🏆</div>
+        <span class="kicker">ŚCIEŻKA MISTRZA</span>
+        <h2 id="levels-title">Poziomy kategorii</h2>
+        <p id="levels-copy">Każda kategoria zdobywa własny XP. Poziom 15 wymaga regularnego treningu.</p>
+        <div class="category-progress-list" id="category-progress-list"></div>
+        <section class="level-threshold-section" aria-labelledby="level-threshold-title">
+          <div class="level-threshold-heading">
+            <h3 id="level-threshold-title">Ile XP potrzeba?</h3>
+            <span>maksymalnie 15 poziom</span>
+          </div>
+          <div class="level-threshold-grid" id="level-threshold-grid"></div>
+        </section>
       </div>
     </div>
 

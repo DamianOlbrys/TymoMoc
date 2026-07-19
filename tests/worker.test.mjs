@@ -32,8 +32,50 @@ class MemoryD1 {
 }
 
 const progress = {
-  8: { xp: 120, streak: 3, completed: 4, correct: 17, today: { date: "2026-07-19", count: 2 } },
-  9: { xp: 10, streak: 1, completed: 1, correct: 1, today: { date: "2026-07-19", count: 1 } }
+  8: {
+    xp: 120,
+    streak: 3,
+    completed: 4,
+    correct: 17,
+    today: { date: "2026-07-19", count: 2 },
+    categories: { math: { xp: 75, correct: 5, wrong: 0, completed: 1 } }
+  },
+  9: {
+    xp: 10,
+    streak: 1,
+    completed: 1,
+    correct: 1,
+    today: { date: "2026-07-19", count: 1 },
+    categories: { coding: { xp: 7, correct: 0, wrong: 1, completed: 0 } }
+  }
+};
+
+const emptyCategory = { xp: 0, correct: 0, wrong: 0, completed: 0 };
+const expectedProgress = {
+  8: {
+    ...progress[8],
+    categories: {
+      math: progress[8].categories.math,
+      polish: emptyCategory,
+      english: emptyCategory,
+      world: emptyCategory,
+      logic: emptyCategory,
+      reading: emptyCategory,
+      coding: emptyCategory
+    }
+  },
+  9: {
+    ...progress[9],
+    categories: {
+      math: emptyCategory,
+      polish: emptyCategory,
+      english: emptyCategory,
+      world: emptyCategory,
+      logic: emptyCategory,
+      reading: emptyCategory,
+      coding: progress[9].categories.coding
+    }
+  }
 };
 
 const env = {
@@ -64,7 +106,7 @@ assert.equal((await saved.json()).ok, true);
 
 const loaded = await worker.fetch(new Request("https://example.test/api/progress", { headers }), env);
 assert.equal(loaded.status, 200);
-assert.deepEqual((await loaded.json()).progress, progress);
+assert.deepEqual((await loaded.json()).progress, expectedProgress);
 
 const staticAsset = await worker.fetch(new Request("https://example.test/"), env);
 assert.equal(await staticAsset.text(), "asset");

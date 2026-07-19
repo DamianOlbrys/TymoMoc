@@ -1,5 +1,6 @@
 const PROFILE_ID = "tymon";
 const SYNC_CODE_HASH = "d559a4532fd762e10225cf57ba915b413647cd6083ecaa4b99343dc41928fe83";
+const SUBJECT_KEYS = ["math", "polish", "english", "world", "logic", "reading", "coding"];
 
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
@@ -121,12 +122,24 @@ function normalizeProgress(value) {
       ? source.today.date
       : new Date().toISOString().slice(0, 10);
 
+    const categories = {};
+    for (const subject of SUBJECT_KEYS) {
+      const category = source.categories?.[subject] || {};
+      categories[subject] = {
+        xp: safeInteger(category.xp),
+        correct: safeInteger(category.correct),
+        wrong: safeInteger(category.wrong),
+        completed: safeInteger(category.completed)
+      };
+    }
+
     result[level] = {
       xp: safeInteger(source.xp),
       streak: safeInteger(source.streak),
       completed: safeInteger(source.completed),
       correct: safeInteger(source.correct),
-      today: { date, count: safeInteger(source.today?.count) }
+      today: { date, count: safeInteger(source.today?.count) },
+      categories
     };
   }
 
