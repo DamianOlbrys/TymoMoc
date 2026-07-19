@@ -43,3 +43,12 @@ Po zainstalowaniu Wranglera:
 ```powershell
 npx wrangler dev
 ```
+
+## Automatyczne wdrożenie z GitHub
+
+- Production branch: `main`
+- Framework preset: `None`
+- Build command: `exit 0`
+- Build output directory: `.`
+
+Repozytorium `tymomoc2` zachowuje w katalogu głównym lustrzaną kopię plików frontendu z `public/`, ponieważ istniejąca integracja Cloudflare publikuje katalog `.`. Każdy `git push` do gałęzi `main` uruchamia automatyczne wdrożenie.

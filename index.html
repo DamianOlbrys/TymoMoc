@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#100d2d" />
+    <meta
+      name="description"
+      content="TymoMoc — kolorowe misje edukacyjne dla dzieci w wieku 8 i 9 lat."
+    />
+    <title>TymoMoc — nauka w trybie turbo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#misje">Przejdź do misji</a>
+
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <header class="topbar shell">
+      <a class="brand" href="#start" aria-label="TymoMoc — strona główna">
+        <span class="brand-mark" aria-hidden="true">T</span>
+        <span>
+          <strong>TymoMoc</strong>
+          <small>Nauka w trybie turbo</small>
+        </span>
+      </a>
+
+      <div class="top-actions">
+        <button class="icon-button language-button" id="language-toggle" type="button" aria-label="Zmień język na niemiecki" title="Język: polski">
+          <span class="language-flag" id="language-flag" aria-hidden="true">🇵🇱</span>
+          <small id="language-code">PL</small>
+        </button>
+
+        <button class="age-pill" id="age-switch" type="button" aria-label="Zmień wiek">
+          <span aria-hidden="true">⚡</span>
+          <span><strong id="top-age">8 lat</strong><small>Zmień poziom</small></span>
+        </button>
+
+        <div class="score-pill" aria-label="Zdobyte punkty doświadczenia">
+          <span class="score-icon" aria-hidden="true">✦</span>
+          <span><strong id="xp-count">0 XP</strong><small>Twój wynik</small></span>
+        </div>
+
+        <button class="icon-button level-button" id="levels-toggle" type="button" aria-label="Sprawdź poziomy kategorii i progi XP" aria-haspopup="dialog" aria-expanded="false">
+          <span aria-hidden="true">🏆</span>
+        </button>
+
+        <button class="icon-button history-button" id="history-toggle" type="button" aria-label="Sprawdź historię nauki" aria-haspopup="dialog" aria-expanded="false">
+          <span aria-hidden="true">📅</span>
+        </button>
+
+        <button class="icon-button admin-button" id="admin-toggle" type="button" aria-label="Otwórz panel administratora" aria-haspopup="dialog" aria-expanded="false" hidden>
+          <span aria-hidden="true">🛡</span>
+        </button>
+
+        <button class="account-button" id="account-toggle" type="button" aria-label="Zaloguj się kontem Google" aria-haspopup="dialog" aria-expanded="false">
+          <span class="account-avatar" id="account-avatar" aria-hidden="true">G</span>
+          <span><strong id="account-name">Zaloguj się</strong><small id="account-status">Konto Google</small></span>
+        </button>
+
+        <button class="icon-button sync-button" id="sync-toggle" type="button" aria-label="Połącz zapis wyników z chmurą">
+          <span id="sync-icon" aria-hidden="true">☁</span>
+        </button>
+
+        <button class="icon-button" id="sound-toggle" type="button" aria-label="Wyłącz dźwięki" aria-pressed="true">
+          <span id="sound-icon" aria-hidden="true">♪</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell" id="start">
+        <div class="hero-copy">
+          <div class="eyebrow"><span></span> Dzisiaj mózg robi salto</div>
+          <h1>Odpal tryb<br /><em>TurboMózg!</em></h1>
+          <p>
+            Krótkie misje, szybkie punkty i zero nudy. Matematyka, polski,
+            angielski i świat — wszystko dopasowane do wieku.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-button" href="#misje">Wybieram misję <span aria-hidden="true">→</span></a>
+            <button class="ghost-button" id="random-mission" type="button">
+              <span aria-hidden="true">🎲</span> Losuj wyzwanie
+            </button>
+          </div>
+          <div class="mini-proof">
+            <div class="avatar-stack" aria-hidden="true"><span>🦫</span><span>🤖</span><span>🪐</span></div>
+            <p><strong>5 minut dziennie</strong><br />robi wielką różnicę</p>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Aksolotl, kapibara i tostobot ruszają na edukacyjną misję">
+          <img src="assets/hero-mascots.png" alt="Trzy zabawne maskotki w kosmicznym świecie nauki" />
+          <div class="floating-chip chip-one"><span>+10 XP</span><small>za dobrą odpowiedź</small></div>
+          <div class="floating-chip chip-two"><span id="hero-streak">0 🔥</span><small>seria misji</small></div>
+        </div>
+      </section>
+
+      <section class="missions shell" id="misje">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">CENTRUM DOWODZENIA</span>
+            <h2>Wybierz swoją misję</h2>
+            <p id="level-copy">Poziom dla 8 lat · zadania krótkie i konkretne</p>
+          </div>
+          <div class="mission-summary-actions">
+            <button class="question-count-button" id="question-count-toggle" type="button" aria-haspopup="dialog" aria-expanded="false">
+              <span class="question-count-icon" aria-hidden="true">🗂</span>
+              <span><strong id="question-count-total">3500 pytań</strong><small>Zobacz bazę pytań</small></span>
+            </button>
+            <div class="today-status">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <span><strong id="today-count">0/3 misje</strong><small>dzisiejszy cel</small></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject-grid">
+          <button class="subject-card subject-math" type="button" data-subject="math">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">÷</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Matma<br />Bez Spiny</span>
+            <span class="subject-desc" id="math-desc">Dodawanie, mnożenie i sprytne zagadki</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●○</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+
+          <button class="subject-card subject-polish" type="button" data-subject="polish">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">Ą</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Polski<br />Kombinator</span>
+            <span class="subject-desc" id="polish-desc">Ortografia, części mowy i słowne wygibasy</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●○</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+
+          <button class="subject-card subject-english" type="button" data-subject="english">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">Hi!</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">English<br />Level Up</span>
+            <span class="subject-desc" id="english-desc">Słówka, zdania i codzienne zwroty</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●○</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+
+          <button class="subject-card subject-world" type="button" data-subject="world">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">◎</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Świat<br />Na Opak</span>
+            <span class="subject-desc" id="world-desc">Przyroda, kosmos, geografia i logika</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●○</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+
+          <button class="subject-card subject-logic" type="button" data-subject="logic">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">◇</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Logika<br />Bez Luk</span>
+            <span class="subject-desc" id="logic-desc">Wzory, szyfry, kolejność i sprytne wnioski</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●●</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+
+          <button class="subject-card subject-reading" type="button" data-subject="reading">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">Aa</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Czytam<br />I Kumam</span>
+            <span class="subject-desc" id="reading-desc">Krótkie teksty, tropienie informacji i wnioski</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●○</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+
+          <button class="subject-card subject-coding" type="button" data-subject="coding">
+            <span class="card-glow" aria-hidden="true"></span>
+            <span class="subject-top"><span class="subject-icon">{ }</span><span class="card-arrow">↗</span></span>
+            <span class="subject-name">Kodowanie<br />Od Zera</span>
+            <span class="subject-desc" id="coding-desc">Algorytmy, pętle, warunki i łapanie błędów</span>
+            <span class="card-footer"><span class="subject-question-count">500 pytań łącznie</span><span class="difficulty">●●●</span></span>
+            <span class="category-daily-goal"><span><b data-daily-xp>0 / 120 XP</b><small>dzisiaj</small></span><span class="daily-goal-track"><i data-daily-bar></i></span></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="motivation shell" aria-labelledby="motivation-title">
+        <div class="motivation-card">
+          <span class="motivation-icon" aria-hidden="true">⚡</span>
+          <div>
+            <span class="kicker">HASŁO MOTYWACYJNE NA DZIŚ</span>
+            <h2 id="motivation-title">TurboMózg rośnie od każdej próby.</h2>
+            <p>Jedno z 500 haseł — nowe każdego dnia.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="daily shell" aria-labelledby="daily-title">
+        <div class="daily-card">
+          <div class="daily-copy">
+            <span class="kicker">MISJA SPECJALNA</span>
+            <h2 id="daily-title">Chaos Mix</h2>
+            <p>Po jednym pytaniu z każdego świata. Kapibara Profesara twierdzi, że dasz radę.</p>
+            <button class="secondary-button" id="mix-mission" type="button">Odpal miks <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="mix-orbit" aria-hidden="true">
+            <span class="orbit orbit-one"></span>
+            <span class="orbit orbit-two"></span>
+            <span class="mix-core">🧠</span>
+            <span class="orbit-item item-one">7</span>
+            <span class="orbit-item item-two">A</span>
+            <span class="orbit-item item-three">?</span>
+          </div>
+          <div class="daily-reward">
+            <small>NAGRODA</small>
+            <strong>+95 XP</strong>
+            <span>za komplet</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="crew shell" aria-labelledby="crew-title">
+        <div class="section-heading compact">
+          <div>
+            <span class="kicker">EKIPA TYMOMOCY</span>
+            <h2 id="crew-title">Poznaj swoich trenerów</h2>
+          </div>
+        </div>
+        <div class="crew-grid">
+          <article class="crew-card" data-trainer="math">
+            <span class="crew-emoji" aria-hidden="true">🪐</span>
+            <div><h3>Aksolot Kalkulot</h3><p>Liczy szybciej, niż leci asteroida.</p></div>
+            <span class="crew-tag">MATMA</span>
+          </article>
+          <article class="crew-card" data-trainer="polish">
+            <span class="crew-emoji" aria-hidden="true">🦫</span>
+            <div><h3>Kapibara Profesara</h3><p>Spokojna głowa, nawet przy „ó” i „u”.</p></div>
+            <span class="crew-tag">POLSKI</span>
+          </article>
+          <article class="crew-card" data-trainer="english">
+            <span class="crew-emoji" aria-hidden="true">🍞</span>
+            <div><h3>Tostobot Lingwistor</h3><p>Podaje angielskie słówka zawsze na czas.</p></div>
+            <span class="crew-tag">ENGLISH</span>
+          </article>
+          <article class="crew-card" data-trainer="world">
+            <span class="crew-emoji" aria-hidden="true">🤖</span>
+            <div><h3>Robot Odkrywator</h3><p>Skanuje Ziemię, kosmos i sekrety przyrody.</p></div>
+            <span class="crew-tag">ŚWIAT</span>
+          </article>
+          <article class="crew-card" data-trainer="logic">
+            <span class="crew-emoji" aria-hidden="true">🧩</span>
+            <div><h3>Lis Deduktor</h3><p>Każdą zagadkę rozkłada na sprytne tropy.</p></div>
+            <span class="crew-tag">LOGIKA</span>
+          </article>
+          <article class="crew-card" data-trainer="reading">
+            <span class="crew-emoji" aria-hidden="true">🦉</span>
+            <div><h3>Sowa Czytelniczka</h3><p>Pomaga zauważyć to, co ukryło się w tekście.</p></div>
+            <span class="crew-tag">CZYTANIE</span>
+          </article>
+          <article class="crew-card" data-trainer="coding">
+            <span class="crew-emoji" aria-hidden="true">👾</span>
+            <div><h3>Kodzik Debugator</h3><p>Łapie błędy i zamienia pomysły w algorytmy.</p></div>
+            <span class="crew-tag">KODOWANIE</span>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer shell">
+      <div class="brand mini"><span class="brand-mark" aria-hidden="true">T</span><strong>TymoMoc</strong></div>
+      <p>Zrobione z ciekawością dla Tymona.</p>
+      <div class="footer-actions">
+        <button class="sync-control" id="sync-progress" type="button">
+          <span aria-hidden="true">☁</span>
+          <span><strong id="sync-label">Włącz zapis w chmurze</strong><small id="sync-status">Wyniki są zapisane na tym urządzeniu</small></span>
+        </button>
+        <button id="reset-progress" type="button">Wyzeruj mój postęp</button>
+      </div>
+    </footer>
+
+    <div class="modal-backdrop" id="age-modal" role="dialog" aria-modal="true" aria-labelledby="age-title">
+      <div class="age-dialog">
+        <button class="modal-close" id="age-close" type="button" aria-label="Zamknij wybór wieku">×</button>
+        <div class="dialog-spark" aria-hidden="true">✦</div>
+        <span class="kicker">USTAW SWÓJ POZIOM</span>
+        <h2 id="age-title">Ile masz lat?</h2>
+        <p>Dopasujemy trudność misji. Możesz zmienić poziom w każdej chwili.</p>
+        <div class="age-options">
+          <button class="age-option" type="button" data-age="8">
+            <span class="age-number">8</span><span><strong>8 lat</strong><small>Startowa moc</small></span><span class="select-arrow">→</span>
+          </button>
+          <button class="age-option" type="button" data-age="9">
+            <span class="age-number">9</span><span><strong>9 lat</strong><small>Więcej wyzwań</small></span><span class="select-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="sync-modal" role="dialog" aria-modal="true" aria-labelledby="sync-title" hidden>
+      <form class="age-dialog sync-dialog" id="sync-form">
+        <button class="modal-close" id="sync-close" type="button" aria-label="Zamknij wpisywanie kodu">×</button>
+        <div class="dialog-spark sync-cloud" aria-hidden="true">☁</div>
+        <span class="kicker">RODZINNA CHMURA</span>
+        <h2 id="sync-title">Zapisz wyniki na zawsze</h2>
+        <p>Wpisz prywatny kod rodzinny. Wystarczy zrobić to raz na każdym urządzeniu.</p>
+        <div class="sync-code-help"><strong>Skąd wziąć kod?</strong><span>Kod ustala rodzic podczas konfiguracji rodzinnej chmury. Używaj tego samego kodu na każdym urządzeniu — nie publikuj go.</span></div>
+        <label class="sync-code-field">
+          <span>Kod synchronizacji</span>
+          <input id="sync-code-input" name="sync-code" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="TYMO-XXXX-XXXX-XXXX-XXXX" required />
+        </label>
+        <button class="primary-button sync-submit" id="sync-submit" type="submit">Połącz wyniki <span aria-hidden="true">→</span></button>
+      </form>
+    </div>
+
+    <div class="modal-backdrop" id="question-count-modal" role="dialog" aria-modal="true" aria-labelledby="question-count-title" hidden>
+      <div class="age-dialog question-count-dialog">
+        <button class="modal-close" id="question-count-close" type="button" aria-label="Zamknij bazę pytań">×</button>
+        <div class="dialog-spark question-count-spark" aria-hidden="true">🗂</div>
+        <span class="kicker">BAZA PYTAŃ</span>
+        <h2 id="question-count-title">Pytania dla 8 lat</h2>
+        <p>Każda misja losuje 5 pytań z wybranej kategorii. Tutaj widzisz całą dostępną pulę.</p>
+        <div class="question-count-list" id="question-count-list"></div>
+        <div class="question-count-summary">
+          <span>Wszystkie kategorie</span>
+          <strong id="question-count-modal-total">3500 pytań</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="levels-modal" role="dialog" aria-modal="true" aria-labelledby="levels-title" hidden>
+      <div class="age-dialog levels-dialog">
+        <button class="modal-close" id="levels-close" type="button" aria-label="Zamknij poziomy kategorii">×</button>
+        <div class="dialog-spark levels-spark" aria-hidden="true">🏆</div>
+        <span class="kicker">ŚCIEŻKA MISTRZA</span>
+        <h2 id="levels-title">Poziomy kategorii</h2>
+        <p id="levels-copy">Każda kategoria zdobywa własny XP. Poziom 15 wymaga regularnego treningu.</p>
+        <div class="category-progress-list" id="category-progress-list"></div>
+        <section class="level-threshold-section" aria-labelledby="level-threshold-title">
+          <div class="level-threshold-heading">
+            <h3 id="level-threshold-title">Ile XP potrzeba?</h3>
+            <span>maksymalnie 15 poziom</span>
+          </div>
+          <div class="level-threshold-grid" id="level-threshold-grid"></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-title" hidden>
+      <div class="age-dialog history-dialog">
+        <button class="modal-close" id="history-close" type="button" aria-label="Zamknij historię nauki">×</button>
+        <div class="dialog-spark history-spark" aria-hidden="true">📅</div>
+        <span class="kicker">DZIENNIK TYMOMOCY</span>
+        <h2 id="history-title">Historia nauki</h2>
+        <p id="history-copy">Tutaj zobaczysz, kiedy Tymon ćwiczył, ile zrobił misji i ile zdobył XP.</p>
+        <div class="history-summary" id="history-summary"></div>
+        <div class="history-list" id="history-list"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop auth-backdrop" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
+      <div class="age-dialog auth-dialog">
+        <button class="modal-close" id="auth-close" type="button" aria-label="Zamknij logowanie">×</button>
+        <div class="dialog-spark auth-spark" aria-hidden="true">G</div>
+        <span class="kicker">BEZPIECZNE KONTO</span>
+        <h2 id="auth-title">Zaloguj się jednym kliknięciem</h2>
+        <p id="auth-copy">Użyj konta Google. Nowe konto zacznie działać po akceptacji administratora.</p>
+        <div class="google-signin-slot" id="google-signin"></div>
+        <div class="auth-message" id="auth-message" hidden></div>
+        <button class="ghost-button auth-refresh" id="auth-refresh" type="button" hidden>Sprawdź, czy konto zaakceptowano</button>
+        <small class="auth-privacy">Nie zapisujemy hasła Google. Otrzymujemy tylko imię, adres e-mail i zdjęcie profilowe.</small>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-title" hidden>
+      <div class="age-dialog account-dialog">
+        <button class="modal-close" id="account-close" type="button" aria-label="Zamknij informacje o koncie">×</button>
+        <div class="account-profile">
+          <span class="account-profile-avatar" id="account-profile-avatar">G</span>
+          <div><span class="kicker">TWOJE KONTO</span><h2 id="account-title">Konto Google</h2><p id="account-email"></p></div>
+        </div>
+        <div class="account-state" id="account-state"></div>
+        <button class="danger-button" id="logout-button" type="button">Wyloguj się</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-title" hidden>
+      <div class="age-dialog admin-dialog">
+        <button class="modal-close" id="admin-close" type="button" aria-label="Zamknij panel administratora">×</button>
+        <div class="dialog-spark admin-spark" aria-hidden="true">🛡</div>
+        <span class="kicker">PANEL RODZICA</span>
+        <h2 id="admin-title">Użytkownicy TymoMocy</h2>
+        <p>Nowe konta wymagają Twojej zgody. Blokada natychmiast wyloguje użytkownika i uniemożliwi kolejne logowanie.</p>
+        <div class="admin-summary" id="admin-summary"></div>
+        <div class="admin-users" id="admin-users"></div>
+      </div>
+    </div>
+
+    <div class="quiz-overlay" id="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="question-title" hidden>
+      <div class="quiz-shell">
+        <button class="quiz-close" id="quiz-close" type="button" aria-label="Zamknij misję">×</button>
+        <div class="quiz-head">
+          <div class="quiz-brand"><span id="quiz-icon">÷</span><span><small id="quiz-kicker">MISJA</small><strong id="quiz-subject">Matma bez spiny</strong></span></div>
+          <div class="quiz-xp">✦ <strong id="quiz-earned">0 XP</strong></div>
+        </div>
+        <div class="progress-track" aria-label="Postęp misji"><span id="quiz-progress"></span></div>
+        <div class="question-meta"><span id="question-number">PYTANIE 1 Z 5</span><span id="level-badge">POZIOM 8 LAT</span></div>
+        <section class="question-card" id="question-card">
+          <div class="question-mascot" id="question-mascot" aria-hidden="true">🪐</div>
+          <p class="question-prompt" id="question-prompt">Gotowy?</p>
+          <h2 id="question-title">Ile to jest 7 + 8?</h2>
+          <div class="answers-grid" id="answers"></div>
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+          <button class="next-button" id="next-question" type="button" hidden>Następne pytanie <span>→</span></button>
+        </section>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+
+    <script src="content.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
