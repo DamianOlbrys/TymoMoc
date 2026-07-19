@@ -479,14 +479,33 @@
   ];
   const MOTIVATIONS = MOTIVATION_STARTS.flatMap((start) => MOTIVATION_ENDS.map((end) => `${start} ${end}`));
 
-  function dailyMotivation(date = new Date()) {
+  const MOTIVATION_STARTS_DE = [
+    "Heute baut jeder kleine Schritt", "Deine Neugier", "Ein mutiger Versuch", "Ruhige Konzentration", "Jede gute Frage",
+    "Deine Anstrengung", "Etwas Neues, das du heute lernst", "Fünf Minuten Training", "Ein Fehler, den du verbesserst", "Eine Idee, die du ausprobierst",
+    "Ausdauer bei einer schwierigen Aufgabe", "Eine kluge Pause", "Freude am Entdecken", "Der Mut zu fragen", "Eine beendete Mission",
+    "Jede gelesene Seite", "Jede gelöste Rechnung", "Ein cleverer Plan", "Aufmerksames Lesen", "Die heutige Übung",
+    "Dein eigenes Tempo", "Ein kleiner Sieg", "Ein Moment voller Konzentration", "Der nächste Versuch", "Wissen mit einem Lächeln"
+  ];
+  const MOTIVATION_ENDS_DE = [
+    "deine große Stärke auf.", "bringt dich der Meisterschaft näher.", "sorgt dafür, dass du morgen mehr kannst.", "ist Treibstoff für dein Turbohirn.",
+    "verwandelt Schwieriges in eine neue Fähigkeit.", "zeigt dir, wie viel du kannst.", "öffnet die Tür zur nächsten Entdeckung.", "wächst gemeinsam mit dir.",
+    "ist wichtiger als ein perfektes Ergebnis.", "bringt deinem Gehirn neue Tricks bei.", "führt dich direkt zum Ziel.", "macht dich stärker als gestern.",
+    "verdient eine kleine Feier.", "gibt dir Mut für die nächste Aufgabe.", "macht einen Unterschied, auch wenn du ihn noch nicht siehst.",
+    "ist ein Zeichen echter Ausdauer.", "verwandelt ‚Ich kann das nicht‘ in ‚Ich lerne es noch‘.", "stärkt Gedächtnis und Selbstvertrauen.",
+    "macht diesen Tag zu einem guten Lerntag.", "kann der Anfang von etwas Großem sein."
+  ];
+  const MOTIVATIONS_DE = MOTIVATION_STARTS_DE.flatMap((start) => MOTIVATION_ENDS_DE.map((end) => `${start} ${end}`));
+
+  function dailyMotivation(date = new Date(), language = "pl") {
     const dayNumber = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
-    return MOTIVATIONS[Math.abs(dayNumber) % MOTIVATIONS.length];
+    const pool = language === "de" ? MOTIVATIONS_DE : MOTIVATIONS;
+    return pool[Math.abs(dayNumber) % pool.length];
   }
 
   window.TYMO_CONTENT = {
     TARGET_PER_SUBJECT,
     MOTIVATIONS,
+    MOTIVATIONS_DE,
     buildQuestionBank,
     dailyMotivation
   };

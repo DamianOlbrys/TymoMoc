@@ -28,6 +28,11 @@
       </a>
 
       <div class="top-actions">
+        <button class="icon-button language-button" id="language-toggle" type="button" aria-label="Zmień język na niemiecki" title="Język: polski">
+          <span class="language-flag" id="language-flag" aria-hidden="true">🇵🇱</span>
+          <small id="language-code">PL</small>
+        </button>
+
         <button class="age-pill" id="age-switch" type="button" aria-label="Zmień wiek">
           <span aria-hidden="true">⚡</span>
           <span><strong id="top-age">8 lat</strong><small>Zmień poziom</small></span>
@@ -221,20 +226,40 @@
           </div>
         </div>
         <div class="crew-grid">
-          <article class="crew-card">
+          <article class="crew-card" data-trainer="math">
             <span class="crew-emoji" aria-hidden="true">🪐</span>
             <div><h3>Aksolot Kalkulot</h3><p>Liczy szybciej, niż leci asteroida.</p></div>
             <span class="crew-tag">MATMA</span>
           </article>
-          <article class="crew-card">
+          <article class="crew-card" data-trainer="polish">
             <span class="crew-emoji" aria-hidden="true">🦫</span>
             <div><h3>Kapibara Profesara</h3><p>Spokojna głowa, nawet przy „ó” i „u”.</p></div>
-            <span class="crew-tag">SŁOWA</span>
+            <span class="crew-tag">POLSKI</span>
           </article>
-          <article class="crew-card">
+          <article class="crew-card" data-trainer="english">
             <span class="crew-emoji" aria-hidden="true">🍞</span>
-            <div><h3>Tostobot Książkator</h3><p>Wyskakuje z wiedzą zawsze na czas.</p></div>
+            <div><h3>Tostobot Lingwistor</h3><p>Podaje angielskie słówka zawsze na czas.</p></div>
+            <span class="crew-tag">ENGLISH</span>
+          </article>
+          <article class="crew-card" data-trainer="world">
+            <span class="crew-emoji" aria-hidden="true">🤖</span>
+            <div><h3>Robot Odkrywator</h3><p>Skanuje Ziemię, kosmos i sekrety przyrody.</p></div>
             <span class="crew-tag">ŚWIAT</span>
+          </article>
+          <article class="crew-card" data-trainer="logic">
+            <span class="crew-emoji" aria-hidden="true">🧩</span>
+            <div><h3>Lis Deduktor</h3><p>Każdą zagadkę rozkłada na sprytne tropy.</p></div>
+            <span class="crew-tag">LOGIKA</span>
+          </article>
+          <article class="crew-card" data-trainer="reading">
+            <span class="crew-emoji" aria-hidden="true">🦉</span>
+            <div><h3>Sowa Czytelniczka</h3><p>Pomaga zauważyć to, co ukryło się w tekście.</p></div>
+            <span class="crew-tag">CZYTANIE</span>
+          </article>
+          <article class="crew-card" data-trainer="coding">
+            <span class="crew-emoji" aria-hidden="true">👾</span>
+            <div><h3>Kodzik Debugator</h3><p>Łapie błędy i zamienia pomysły w algorytmy.</p></div>
+            <span class="crew-tag">KODOWANIE</span>
           </article>
         </div>
       </section>

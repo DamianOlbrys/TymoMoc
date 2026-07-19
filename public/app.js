@@ -1,14 +1,114 @@
 "use strict";
 
 const SUBJECTS = {
-  math: { name: "Matma bez spiny", icon: "÷", mascot: "🪐", color: "#bbf03c" },
-  polish: { name: "Polski kombinator", icon: "Ą", mascot: "🦫", color: "#ff6b7a" },
-  english: { name: "English level up", icon: "Hi!", mascot: "🍞", color: "#30d7f0" },
-  world: { name: "Świat na opak", icon: "◎", mascot: "🤖", color: "#a78bfa" },
-  logic: { name: "Logika bez luk", icon: "◇", mascot: "🧩", color: "#ff9f43" },
-  reading: { name: "Czytam i kumam", icon: "Aa", mascot: "🦉", color: "#4dd599" },
-  coding: { name: "Kodowanie od zera", icon: "{ }", mascot: "🤖", color: "#f78fb3" },
-  mix: { name: "Chaos Mix", icon: "✦", mascot: "🧠", color: "#ffc93d" }
+  math: { name: "Matma bez spiny", nameDe: "Mathe ohne Stress", icon: "÷", mascot: "🪐", color: "#bbf03c" },
+  polish: { name: "Polski kombinator", nameDe: "Polnisch-Kombinator", icon: "Ą", mascot: "🦫", color: "#ff6b7a" },
+  english: { name: "English level up", nameDe: "Englisch Level-up", icon: "Hi!", mascot: "🍞", color: "#30d7f0" },
+  world: { name: "Świat na opak", nameDe: "Die Welt entdecken", icon: "◎", mascot: "🤖", color: "#a78bfa" },
+  logic: { name: "Logika bez luk", nameDe: "Logik ohne Lücken", icon: "◇", mascot: "🧩", color: "#ff9f43" },
+  reading: { name: "Czytam i kumam", nameDe: "Lesen und verstehen", icon: "Aa", mascot: "🦉", color: "#4dd599" },
+  coding: { name: "Kodowanie od zera", nameDe: "Programmieren ab null", icon: "{ }", mascot: "🤖", color: "#f78fb3" },
+  mix: { name: "Chaos Mix", nameDe: "Chaos-Mix", icon: "✦", mascot: "🧠", color: "#ffc93d" }
+};
+
+const GERMAN_STATIC_TEXT = new Map(Object.entries({
+  "Przejdź do misji": "Zu den Missionen",
+  "Nauka w trybie turbo": "Lernen im Turbomodus",
+  "Zmień poziom": "Stufe ändern",
+  "Twój wynik": "Dein Ergebnis",
+  "Dzisiaj mózg robi salto": "Heute macht dein Gehirn einen Salto",
+  "Odpal tryb": "Starte den Modus",
+  "Krótki misje, szybkie punkty i zero nudy.": "Kurze Missionen, schnelle Punkte und keine Langeweile.",
+  "Wybieram misję": "Mission wählen",
+  "Losuj wyzwanie": "Aufgabe auslosen",
+  "5 minut dziennie": "5 Minuten täglich",
+  "robi wielką różnicę": "machen einen großen Unterschied",
+  "za dobrą odpowiedź": "für eine richtige Antwort",
+  "seria misji": "Missionsserie",
+  "CENTRUM DOWODZENIA": "KOMMANDOZENTRALE",
+  "Wybierz swoją misję": "Wähle deine Mission",
+  "Zobacz bazę pytań": "Fragenpool ansehen",
+  "dzisiejszy cel": "heutiges Ziel",
+  "dzisiaj": "heute",
+  "HASŁO MOTYWACYJNE NA DZIŚ": "MOTTO FÜR HEUTE",
+  "Jedno z 500 haseł — nowe każdego dnia.": "Eines von 500 Mottos – jeden Tag ein neues.",
+  "MISJA SPECJALNA": "SPEZIALMISSION",
+  "Po jednym pytaniu z każdego świata. Kapibara Profesara twierdzi, że dasz radę.": "Eine Frage aus jeder Welt. Professor Capybara glaubt an dich.",
+  "Odpal miks": "Mix starten",
+  "NAGRODA": "BELOHNUNG",
+  "za komplet": "für das ganze Set",
+  "EKIPA TYMOMOCY": "DAS TYMOMOC-TEAM",
+  "Poznaj swoich trenerów": "Lerne deine Trainer kennen",
+  "Zrobione z ciekawością dla Tymona.": "Mit Neugier für Tymon gemacht.",
+  "Włącz zapis w chmurze": "Cloud-Speicherung aktivieren",
+  "Wyniki są zapisane na tym urządzeniu": "Ergebnisse sind auf diesem Gerät gespeichert",
+  "Wyzeruj mój postęp": "Meinen Fortschritt löschen",
+  "USTAW SWÓJ POZIOM": "WÄHLE DEINE STUFE",
+  "Ile masz lat?": "Wie alt bist du?",
+  "Dopasujemy trudność misji. Możesz zmienić poziom w każdej chwili.": "Wir passen die Schwierigkeit an. Du kannst die Stufe jederzeit ändern.",
+  "Startowa moc": "Startpower",
+  "Więcej wyzwań": "Mehr Herausforderungen",
+  "RODZINNA CHMURA": "FAMILIEN-CLOUD",
+  "Zapisz wyniki na zawsze": "Ergebnisse dauerhaft speichern",
+  "Wpisz prywatny kod rodzinny. Wystarczy zrobić to raz na każdym urządzeniu.": "Gib den privaten Familiencode einmal auf jedem Gerät ein.",
+  "Skąd wziąć kod?": "Woher kommt der Code?",
+  "Kod synchronizacji": "Synchronisierungscode",
+  "Połącz wyniki": "Ergebnisse verbinden",
+  "BAZA PYTAŃ": "FRAGENPOOL",
+  "Każda misja losuje 5 pytań z wybranej kategorii. Tutaj widzisz całą dostępną pulę.": "Jede Mission zieht 5 Fragen aus der gewählten Kategorie. Hier siehst du den gesamten Pool.",
+  "Wszystkie kategorie": "Alle Kategorien",
+  "ŚCIEŻKA MISTRZA": "MEISTERPFAD",
+  "Poziomy kategorii": "Kategorien-Stufen",
+  "Ile XP potrzeba?": "Wie viele XP braucht man?",
+  "maksymalnie 15 poziom": "maximal Stufe 15",
+  "DZIENNIK TYMOMOCY": "TYMOMOC-TAGEBUCH",
+  "Historia nauki": "Lernverlauf",
+  "BEZPIECZNE KONTO": "SICHERES KONTO",
+  "Zaloguj się jednym kliknięciem": "Mit einem Klick anmelden",
+  "Użyj konta Google. Nowe konto zacznie działać po akceptacji administratora.": "Nutze dein Google-Konto. Ein neues Konto wird nach der Freigabe aktiv.",
+  "Sprawdź, czy konto zaakceptowano": "Freigabe des Kontos prüfen",
+  "Nie zapisujemy hasła Google. Otrzymujemy tylko imię, adres e-mail i zdjęcie profilowe.": "Wir speichern dein Google-Passwort nicht. Wir erhalten nur Name, E-Mail und Profilbild.",
+  "TWOJE KONTO": "DEIN KONTO",
+  "Konto Google": "Google-Konto",
+  "Wyloguj się": "Abmelden",
+  "PANEL RODZICA": "ELTERNBEREICH",
+  "Użytkownicy TymoMocy": "TymoMoc-Nutzer",
+  "Nowe konta wymagają Twojej zgody. Blokada natychmiast wyloguje użytkownika i uniemożliwi kolejne logowanie.": "Neue Konten brauchen deine Zustimmung. Eine Sperre meldet den Nutzer sofort ab und verhindert weitere Anmeldungen.",
+  "MISJA": "MISSION",
+  "Gotowy?": "Bereit?",
+  "Następne pytanie": "Nächste Frage"
+}));
+
+const GERMAN_ARIA_TEXT = new Map(Object.entries({
+  "Zmień wiek": "Alter ändern",
+  "Zdobyte punkty doświadczenia": "Gesammelte Erfahrungspunkte",
+  "Sprawdź poziomy kategorii i progi XP": "Kategorien-Stufen und XP-Schwellen prüfen",
+  "Sprawdź historię nauki": "Lernverlauf ansehen",
+  "Otwórz panel administratora": "Administratorbereich öffnen",
+  "Zaloguj się kontem Google": "Mit Google anmelden",
+  "Połącz zapis wyników z chmurą": "Ergebnisse mit der Cloud verbinden",
+  "Wyłącz dźwięki": "Töne ausschalten",
+  "Włącz dźwięki": "Töne einschalten",
+  "Zamknij wybór wieku": "Altersauswahl schließen",
+  "Zamknij wpisywanie kodu": "Codeeingabe schließen",
+  "Zamknij bazę pytań": "Fragenpool schließen",
+  "Zamknij poziomy kategorii": "Kategorien-Stufen schließen",
+  "Zamknij historię nauki": "Lernverlauf schließen",
+  "Zamknij logowanie": "Anmeldung schließen",
+  "Zamknij informacje o koncie": "Kontoinformationen schließen",
+  "Zamknij panel administratora": "Administratorbereich schließen",
+  "Zamknij misję": "Mission schließen",
+  "Postęp misji": "Missionsfortschritt"
+}));
+
+const TRAINERS = {
+  math: { emoji: "🪐", name: "Aksolot Kalkulot", tag: ["MATMA", "MATHE"], copy: ["Liczy szybciej, niż leci asteroida.", "Rechnet schneller, als ein Asteroid fliegt."] },
+  polish: { emoji: "🦫", name: "Kapibara Profesara", tag: ["POLSKI", "POLNISCH"], copy: ["Spokojna głowa, nawet przy „ó” i „u”.", "Bleibt selbst bei schwierigen polnischen Wörtern ganz ruhig."] },
+  english: { emoji: "🍞", name: "Tostobot Lingwistor", tag: ["ENGLISH", "ENGLISCH"], copy: ["Podaje angielskie słówka zawsze na czas.", "Serviert englische Wörter genau zur richtigen Zeit."] },
+  world: { emoji: "🤖", name: "Robot Odkrywator", tag: ["ŚWIAT", "WELT"], copy: ["Skanuje Ziemię, kosmos i sekrety przyrody.", "Scannt die Erde, den Weltraum und die Geheimnisse der Natur."] },
+  logic: { emoji: "🧩", name: "Lis Deduktor", tag: ["LOGIKA", "LOGIK"], copy: ["Każdą zagadkę rozkłada na sprytne tropy.", "Zerlegt jedes Rätsel in clevere Hinweise."] },
+  reading: { emoji: "🦉", name: "Sowa Czytelniczka", tag: ["CZYTANIE", "LESEN"], copy: ["Pomaga zauważyć to, co ukryło się w tekście.", "Hilft dir, versteckte Hinweise im Text zu entdecken."] },
+  coding: { emoji: "👾", name: "Kodzik Debugator", tag: ["KODOWANIE", "CODING"], copy: ["Łapie błędy i zamienia pomysły w algorytmy.", "Fängt Fehler und verwandelt Ideen in Algorithmen."] }
 };
 
 const SEED_QUESTION_BANK = {
@@ -155,11 +255,15 @@ const AGE_KEY = "tymomoc-age";
 const SOUND_KEY = "tymomoc-sound";
 const SYNC_CODE_KEY = "tymomoc-sync-code-v1";
 const AUTH_TOKEN_KEY = "tymomoc-auth-token-v1";
+const LANGUAGE_KEY = "tymomoc-language-v1";
 const PROGRESS_MIGRATION_OWNER_KEY = "tymomoc-progress-owner-v1";
 const FALLBACK_API_BASE_URL = "https://tymomoc-api.damianolbrys5.workers.dev";
 let apiBaseUrl = FALLBACK_API_BASE_URL;
 
 const els = {
+  languageToggle: document.querySelector("#language-toggle"),
+  languageFlag: document.querySelector("#language-flag"),
+  languageCode: document.querySelector("#language-code"),
   ageModal: document.querySelector("#age-modal"),
   ageClose: document.querySelector("#age-close"),
   ageSwitch: document.querySelector("#age-switch"),
@@ -254,6 +358,7 @@ const emptyProgress = () => ({
 });
 
 let age = Number(safeGet(AGE_KEY)) || 8;
+let language = safeGet(LANGUAGE_KEY) === "de" ? "de" : "pl";
 let soundOn = safeGet(SOUND_KEY) !== "off";
 let progress = loadProgress();
 let syncCode = normalizeSyncCode(safeGet(SYNC_CODE_KEY) || "");
@@ -281,6 +386,100 @@ function safeSet(key, value) {
 
 function safeRemove(key) {
   try { localStorage.removeItem(key); } catch { /* Brak dostępu do pamięci nie zatrzymuje strony. */ }
+}
+
+function subjectName(subject) {
+  const meta = SUBJECTS[subject];
+  return language === "de" ? meta.nameDe : meta.name;
+}
+
+function currentLocale() {
+  return language === "de" ? "de-DE" : "pl-PL";
+}
+
+function translateStaticText() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+  while (node) {
+    const raw = node.nodeValue;
+    const trimmed = raw.trim();
+    if (!node._tymoPolishText && GERMAN_STATIC_TEXT.has(trimmed)) node._tymoPolishText = trimmed;
+    if (node._tymoPolishText) {
+      const translated = language === "de" ? GERMAN_STATIC_TEXT.get(node._tymoPolishText) : node._tymoPolishText;
+      node.nodeValue = raw.replace(trimmed, translated);
+    }
+    node = walker.nextNode();
+  }
+
+  document.querySelectorAll("[aria-label]").forEach((element) => {
+    const current = element.getAttribute("aria-label");
+    if (!element.dataset.tymoPolishAria && GERMAN_ARIA_TEXT.has(current)) element.dataset.tymoPolishAria = current;
+    if (element.dataset.tymoPolishAria) {
+      element.setAttribute("aria-label", language === "de"
+        ? GERMAN_ARIA_TEXT.get(element.dataset.tymoPolishAria)
+        : element.dataset.tymoPolishAria);
+    }
+  });
+}
+
+function renderTrainers() {
+  document.querySelectorAll("[data-trainer]").forEach((card) => {
+    const trainer = TRAINERS[card.dataset.trainer];
+    const copyIndex = language === "de" ? 1 : 0;
+    card.querySelector(".crew-emoji").textContent = trainer.emoji;
+    card.querySelector("h3").textContent = trainer.name;
+    card.querySelector("p").textContent = trainer.copy[copyIndex];
+    card.querySelector(".crew-tag").textContent = trainer.tag[copyIndex];
+  });
+}
+
+function applyLanguageShell() {
+  document.documentElement.lang = language;
+  document.title = language === "de" ? "TymoMoc – Lernen im Turbomodus" : "TymoMoc — nauka w trybie turbo";
+  document.querySelector('meta[name="description"]')?.setAttribute("content", language === "de"
+    ? "TymoMoc – bunte Lernmissionen für Kinder im Alter von 8 und 9 Jahren."
+    : "TymoMoc — kolorowe misje edukacyjne dla dzieci w wieku 8 i 9 lat.");
+
+  els.languageFlag.textContent = language === "de" ? "🇩🇪" : "🇵🇱";
+  els.languageCode.textContent = language.toUpperCase();
+  els.languageToggle.title = language === "de" ? "Sprache: Deutsch" : "Język: polski";
+  els.languageToggle.setAttribute("aria-label", language === "de" ? "Sprache auf Polnisch ändern" : "Zmień język na niemiecki");
+
+  document.querySelector(".hero-copy > p").textContent = language === "de"
+    ? "Kurze Missionen, schnelle Punkte und keine Langeweile. Mathe, Polnisch, Englisch und die Welt – passend zu deinem Alter."
+    : "Krótkie misje, szybkie punkty i zero nudy. Matematyka, polski, angielski i świat — wszystko dopasowane do wieku.";
+
+  const cardNames = {
+    math: ["Matma<br />Bez Spiny", "Mathe<br />Ohne Stress"],
+    polish: ["Polski<br />Kombinator", "Polnisch<br />Kombinator"],
+    english: ["English<br />Level Up", "Englisch<br />Level-up"],
+    world: ["Świat<br />Na Opak", "Welt<br />Entdecken"],
+    logic: ["Logika<br />Bez Luk", "Logik<br />Ohne Lücken"],
+    reading: ["Czytam<br />I Kumam", "Lesen<br />Und Verstehen"],
+    coding: ["Kodowanie<br />Od Zera", "Coding<br />Ab Null"]
+  };
+  els.subjectCards.forEach((card) => {
+    card.querySelector(".subject-name").innerHTML = cardNames[card.dataset.subject][language === "de" ? 1 : 0];
+    card.querySelector(".category-daily-goal small").textContent = language === "de" ? "heute" : "dzisiaj";
+  });
+  els.ageOptions.forEach((option) => {
+    option.querySelector("strong").textContent = language === "de"
+      ? `${option.dataset.age} Jahre`
+      : `${option.dataset.age} lat`;
+  });
+
+  translateStaticText();
+  renderTrainers();
+}
+
+function toggleLanguage() {
+  language = language === "pl" ? "de" : "pl";
+  safeSet(LANGUAGE_KEY, language);
+  updateUI();
+  setSyncState(syncCode ? "waiting" : "local");
+  updateAccountUI();
+  renderGoogleButton();
+  showToast(language === "de" ? "Deutsch ist aktiv 🇩🇪" : "Język polski jest aktywny 🇵🇱");
 }
 
 function safeCount(value) {
@@ -434,7 +633,13 @@ function normalizeSyncCode(value) {
 }
 
 function setSyncState(state) {
-  const states = {
+  const states = language === "de" ? {
+    local: { icon: "☁", label: "Cloud-Speicherung aktivieren", detail: "Ergebnisse sind auf diesem Gerät gespeichert" },
+    waiting: { icon: "☁", label: "Cloud-Speicherung aktiv", detail: "Warten auf die Synchronisierung" },
+    syncing: { icon: "↻", label: "Ergebnisse werden synchronisiert…", detail: "Verbindung zur sicheren Datenbank" },
+    synced: { icon: "✓", label: "Ergebnisse sind in der Cloud", detail: "Die Synchronisierung läuft automatisch" },
+    error: { icon: "!", label: "Synchronisierung fehlgeschlagen", detail: "Die Ergebnisse sind weiterhin auf diesem Gerät sicher" }
+  } : {
     local: { icon: "☁", label: "Włącz zapis w chmurze", detail: "Wyniki są zapisane na tym urządzeniu" },
     waiting: { icon: "☁", label: "Zapis w chmurze włączony", detail: "Oczekiwanie na synchronizację" },
     syncing: { icon: "↻", label: "Synchronizuję wyniki…", detail: "Łączę się z bezpieczną bazą" },
@@ -640,6 +845,7 @@ function shuffle(items) {
 }
 
 function formatQuestionCount(count) {
+  if (language === "de") return `${count} ${count === 1 ? "Frage" : "Fragen"}`;
   const lastTwo = count % 100;
   const last = count % 10;
   const noun = count === 1 ? "pytanie" : last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14) ? "pytania" : "pytań";
@@ -652,11 +858,11 @@ function updateQuestionCounts() {
 
   els.questionCountTotal.textContent = formatQuestionCount(total);
   els.questionCountModalTotal.textContent = formatQuestionCount(total);
-  els.questionCountTitle.textContent = `Pytania dla ${age} lat`;
+  els.questionCountTitle.textContent = language === "de" ? `Fragen für ${age} Jahre` : `Pytania dla ${age} lat`;
 
   els.subjectCards.forEach((card) => {
     const count = QUESTION_BANK[age][card.dataset.subject].length;
-    card.querySelector(".subject-question-count").textContent = `${formatQuestionCount(count)} łącznie`;
+    card.querySelector(".subject-question-count").textContent = `${formatQuestionCount(count)} ${language === "de" ? "insgesamt" : "łącznie"}`;
   });
 
   els.questionCountList.innerHTML = entries.map(([subject, questions]) => {
@@ -664,7 +870,7 @@ function updateQuestionCounts() {
     return `
       <div class="question-count-row">
         <span class="question-count-subject-icon" style="--subject-color: ${meta.color}" aria-hidden="true">${meta.icon}</span>
-        <span><strong>${meta.name}</strong><small>pełna pula dla poziomu ${age} lat</small></span>
+        <span><strong>${subjectName(subject)}</strong><small>${language === "de" ? `vollständiger Pool für ${age} Jahre` : `pełna pula dla poziomu ${age} lat`}</small></span>
         <b>${formatQuestionCount(questions.length)}</b>
       </div>`;
   }).join("");
@@ -680,7 +886,9 @@ function levelForXp(xp) {
 
 function updateCategoryProgress() {
   const categories = progress[age].categories;
-  els.levelsCopy.textContent = `Wyniki dla poziomu ${age} lat. Każda kategoria zdobywa własny XP, a 15. poziom wymaga regularnego treningu.`;
+  els.levelsCopy.textContent = language === "de"
+    ? `Ergebnisse für ${age} Jahre. Jede Kategorie sammelt eigene XP; Stufe 15 erfordert regelmäßiges Training.`
+    : `Wyniki dla poziomu ${age} lat. Każda kategoria zdobywa własny XP, a 15. poziom wymaga regularnego treningu.`;
 
   els.categoryProgressList.innerHTML = SUBJECT_KEYS.map((subject) => {
     const meta = SUBJECTS[subject];
@@ -695,28 +903,28 @@ function updateCategoryProgress() {
     const answers = safeCount(stats.correct) + safeCount(stats.wrong);
     const correctPercent = answers ? Math.round((safeCount(stats.correct) / answers) * 100) : 0;
     const wrongPercent = answers ? 100 - correctPercent : 0;
-    const xpTarget = level === 15 ? "MAX" : `${xp.toLocaleString("pl-PL")} / ${nextThreshold.toLocaleString("pl-PL")} XP`;
+    const xpTarget = level === 15 ? "MAX" : `${xp.toLocaleString(currentLocale())} / ${nextThreshold.toLocaleString(currentLocale())} XP`;
 
     return `
       <article class="category-progress-card" style="--subject-color: ${meta.color}">
         <div class="category-progress-heading">
           <span class="category-progress-icon" aria-hidden="true">${meta.icon}</span>
-          <span><strong>${meta.name}</strong><small>${xp.toLocaleString("pl-PL")} XP w kategorii</small></span>
-          <b>POZIOM ${level}</b>
+          <span><strong>${subjectName(subject)}</strong><small>${xp.toLocaleString(currentLocale())} XP ${language === "de" ? "in dieser Kategorie" : "w kategorii"}</small></span>
+          <b>${language === "de" ? "STUFE" : "POZIOM"} ${level}</b>
         </div>
-        <div class="category-level-track" aria-label="Postęp do następnego poziomu"><span style="width: ${progressPercent}%"></span></div>
-        <div class="category-level-meta"><span>${xpTarget}</span><span>${progressPercent}% drogi</span></div>
+        <div class="category-level-track" aria-label="${language === "de" ? "Fortschritt zur nächsten Stufe" : "Postęp do następnego poziomu"}"><span style="width: ${progressPercent}%"></span></div>
+        <div class="category-level-meta"><span>${xpTarget}</span><span>${progressPercent}% ${language === "de" ? "des Weges" : "drogi"}</span></div>
         <div class="answer-stat-grid">
-          <span class="answer-stat-good"><strong>${safeCount(stats.correct)} · ${correctPercent}%</strong><small>dobre odpowiedzi</small></span>
-          <span class="answer-stat-wrong"><strong>${safeCount(stats.wrong)} · ${wrongPercent}%</strong><small>złe odpowiedzi</small></span>
+          <span class="answer-stat-good"><strong>${safeCount(stats.correct)} · ${correctPercent}%</strong><small>${language === "de" ? "richtige Antworten" : "dobre odpowiedzi"}</small></span>
+          <span class="answer-stat-wrong"><strong>${safeCount(stats.wrong)} · ${wrongPercent}%</strong><small>${language === "de" ? "falsche Antworten" : "złe odpowiedzi"}</small></span>
         </div>
       </article>`;
   }).join("");
 
   els.levelThresholdGrid.innerHTML = LEVEL_THRESHOLDS.map((threshold, index) => `
     <div class="level-threshold-item${index === 14 ? " final" : ""}">
-      <span>Poziom ${index + 1}</span>
-      <strong>${threshold.toLocaleString("pl-PL")} XP</strong>
+      <span>${language === "de" ? "Stufe" : "Poziom"} ${index + 1}</span>
+      <strong>${threshold.toLocaleString(currentLocale())} XP</strong>
     </div>`).join("");
 }
 
@@ -735,7 +943,7 @@ function updateDailyGoals() {
 function formatHistoryDate(date) {
   const parsed = new Date(`${date}T12:00:00`);
   if (Number.isNaN(parsed.getTime())) return date;
-  return new Intl.DateTimeFormat("pl-PL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(parsed);
+  return new Intl.DateTimeFormat(currentLocale(), { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(parsed);
 }
 
 function updateHistoryView() {
@@ -750,15 +958,19 @@ function updateHistoryView() {
     return sum;
   }, { xp: 0, missions: 0, questions: 0 });
 
-  els.historyCopy.textContent = `Historia dla poziomu ${age} lat · dzienny cel każdej kategorii to ${DAILY_CATEGORY_GOAL} XP.`;
+  els.historyCopy.textContent = language === "de"
+    ? `Verlauf für ${age} Jahre · das Tagesziel jeder Kategorie beträgt ${DAILY_CATEGORY_GOAL} XP.`
+    : `Historia dla poziomu ${age} lat · dzienny cel każdej kategorii to ${DAILY_CATEGORY_GOAL} XP.`;
   els.historySummary.innerHTML = `
-    <span><strong>${dates.length}</strong><small>aktywnych dni</small></span>
-    <span><strong>${totals.missions}</strong><small>misji</small></span>
-    <span><strong>${totals.questions}</strong><small>odpowiedzi</small></span>
-    <span><strong>${totals.xp}</strong><small>XP kategorii</small></span>`;
+    <span><strong>${dates.length}</strong><small>${language === "de" ? "aktive Tage" : "aktywnych dni"}</small></span>
+    <span><strong>${totals.missions}</strong><small>${language === "de" ? "Missionen" : "misji"}</small></span>
+    <span><strong>${totals.questions}</strong><small>${language === "de" ? "Antworten" : "odpowiedzi"}</small></span>
+    <span><strong>${totals.xp}</strong><small>${language === "de" ? "Kategorie-XP" : "XP kategorii"}</small></span>`;
 
   if (!dates.length) {
-    els.historyList.innerHTML = `<div class="history-empty"><span>📭</span><strong>Historia jest jeszcze pusta</strong><p>Ukończ pierwszą misję, a pojawi się tutaj jej data, XP i liczba odpowiedzi.</p></div>`;
+    els.historyList.innerHTML = language === "de"
+      ? `<div class="history-empty"><span>📭</span><strong>Der Verlauf ist noch leer</strong><p>Beende deine erste Mission. Danach siehst du hier Datum, XP und Anzahl der Antworten.</p></div>`
+      : `<div class="history-empty"><span>📭</span><strong>Historia jest jeszcze pusta</strong><p>Ukończ pierwszą misję, a pojawi się tutaj jej data, XP i liczba odpowiedzi.</p></div>`;
     return;
   }
 
@@ -771,8 +983,8 @@ function updateHistoryView() {
       return `
         <div class="history-category-row" style="--subject-color: ${meta.color}">
           <span class="history-category-icon" aria-hidden="true">${meta.icon}</span>
-          <span class="history-category-copy"><strong>${meta.name}</strong><small>${entry.missions} misji · ${entry.questions} odpowiedzi · ${entry.correct} dobrych · ${entry.wrong} złych</small></span>
-          <span class="history-category-xp"><strong>+${entry.xp} XP</strong><small>${goalPercent}% celu</small></span>
+          <span class="history-category-copy"><strong>${subjectName(subject)}</strong><small>${language === "de" ? `${entry.missions} Missionen · ${entry.questions} Antworten · ${entry.correct} richtig · ${entry.wrong} falsch` : `${entry.missions} misji · ${entry.questions} odpowiedzi · ${entry.correct} dobrych · ${entry.wrong} złych`}</small></span>
+          <span class="history-category-xp"><strong>+${entry.xp} XP</strong><small>${goalPercent}% ${language === "de" ? "des Ziels" : "celu"}</small></span>
         </div>`;
     }).join("");
     return `<article class="history-day"><div class="history-day-heading"><strong>${formatHistoryDate(date)}</strong><span>${date}</span></div>${entries}</article>`;
@@ -839,44 +1051,46 @@ function closeHistoryDialog() {
 
 function updateUI() {
   const current = progress[age];
-  els.topAge.textContent = `${age} lat`;
+  applyLanguageShell();
+  els.topAge.textContent = language === "de" ? `${age} Jahre` : `${age} lat`;
   els.xpCount.textContent = `${current.xp} XP`;
   els.heroStreak.textContent = `${current.streak} 🔥`;
-  els.todayCount.textContent = `${Math.min(current.today.count, 3)}/3 misje`;
-  els.levelCopy.textContent = age === 8
-    ? "Poziom dla 8 lat · zadania krótkie i konkretne"
-    : "Poziom dla 9 lat · trochę więcej kombinowania";
+  els.todayCount.textContent = `${Math.min(current.today.count, 3)}/3 ${language === "de" ? "Missionen" : "misje"}`;
+  els.levelCopy.textContent = language === "de"
+    ? (age === 8 ? "Stufe für 8 Jahre · kurze und klare Aufgaben" : "Stufe für 9 Jahre · etwas kniffligere Aufgaben")
+    : (age === 8 ? "Poziom dla 8 lat · zadania krótkie i konkretne" : "Poziom dla 9 lat · trochę więcej kombinowania");
 
-  document.querySelector("#math-desc").textContent = age === 8
-    ? "Dodawanie, mnożenie i sprytne zagadki"
-    : "Działania, obwody i kolejność obliczeń";
-  document.querySelector("#polish-desc").textContent = age === 8
-    ? "Ortografia, sylaby i słowne wygibasy"
-    : "Części mowy, pisownia i budowa zdań";
-  document.querySelector("#english-desc").textContent = age === 8
-    ? "Słówka, kolory i codzienne zwroty"
-    : "Zdania, czas, pytania i liczba mnoga";
-  document.querySelector("#world-desc").textContent = age === 8
-    ? "Przyroda, Polska, kosmos i czas"
-    : "Geografia, kosmos i naukowe przemiany";
-  document.querySelector("#logic-desc").textContent = age === 8
-    ? "Wzory, kolejność i sprytne wnioski"
-    : "Szyfry, warunki i trudniejsze dedukcje";
-  document.querySelector("#reading-desc").textContent = age === 8
-    ? "Krótkie teksty i tropienie informacji"
-    : "Teksty, przyczyny, czas i wyciąganie wniosków";
-  document.querySelector("#coding-desc").textContent = age === 8
-    ? "Algorytmy, pętle i pierwsze komendy"
-    : "Zmienne, warunki, pętle i debugowanie";
+  const descriptions = language === "de" ? {
+    math: age === 8 ? "Addieren, multiplizieren und clevere Rätsel" : "Rechnen, Umfänge und Rechenregeln",
+    polish: age === 8 ? "Polnische Rechtschreibung, Silben und Wortspiele" : "Wortarten, Rechtschreibung und Satzbau",
+    english: age === 8 ? "Wörter, Farben und tägliche Wendungen" : "Sätze, Uhrzeit, Fragen und Mehrzahl",
+    world: age === 8 ? "Natur, Polen, Weltraum und Zeit" : "Geografie, Weltraum und Veränderungen in der Natur",
+    logic: age === 8 ? "Muster, Reihenfolgen und clevere Schlüsse" : "Codes, Bedingungen und schwierigere Deduktionen",
+    reading: age === 8 ? "Kurze Texte und wichtige Informationen finden" : "Texte, Ursachen, Zeit und Schlussfolgerungen",
+    coding: age === 8 ? "Algorithmen, Schleifen und erste Befehle" : "Variablen, Bedingungen, Schleifen und Debugging"
+  } : {
+    math: age === 8 ? "Dodawanie, mnożenie i sprytne zagadki" : "Działania, obwody i kolejność obliczeń",
+    polish: age === 8 ? "Ortografia, sylaby i słowne wygibasy" : "Części mowy, pisownia i budowa zdań",
+    english: age === 8 ? "Słówka, kolory i codzienne zwroty" : "Zdania, czas, pytania i liczba mnoga",
+    world: age === 8 ? "Przyroda, Polska, kosmos i czas" : "Geografia, kosmos i naukowe przemiany",
+    logic: age === 8 ? "Wzory, kolejność i sprytne wnioski" : "Szyfry, warunki i trudniejsze dedukcje",
+    reading: age === 8 ? "Krótkie teksty i tropienie informacji" : "Teksty, przyczyny, czas i wyciąganie wniosków",
+    coding: age === 8 ? "Algorytmy, pętle i pierwsze komendy" : "Zmienne, warunki, pętle i debugowanie"
+  };
+  Object.entries(descriptions).forEach(([subject, description]) => {
+    document.querySelector(`#${subject}-desc`).textContent = description;
+  });
 
   updateQuestionCounts();
   updateCategoryProgress();
   updateDailyGoals();
-  els.motivationTitle.textContent = window.TYMO_CONTENT.dailyMotivation();
+  els.motivationTitle.textContent = window.TYMO_CONTENT.dailyMotivation(new Date(), language);
 
   els.ageOptions.forEach((option) => option.classList.toggle("selected", Number(option.dataset.age) === age));
   els.soundToggle.setAttribute("aria-pressed", String(soundOn));
-  els.soundToggle.setAttribute("aria-label", soundOn ? "Wyłącz dźwięki" : "Włącz dźwięki");
+  els.soundToggle.setAttribute("aria-label", language === "de"
+    ? (soundOn ? "Töne ausschalten" : "Töne einschalten")
+    : (soundOn ? "Wyłącz dźwięki" : "Włącz dźwięki"));
   els.soundIcon.textContent = soundOn ? "♪" : "×";
 }
 
@@ -886,7 +1100,7 @@ function chooseAge(nextAge) {
   updateUI();
   closeAgeDialog();
   beep("select");
-  showToast(`Poziom ${age} lat aktywowany. Turbo! ⚡`);
+  showToast(language === "de" ? `Stufe ${age} Jahre aktiviert. Turbo! ⚡` : `Poziom ${age} lat aktywowany. Turbo! ⚡`);
 }
 
 function openAgeDialog() {
@@ -926,11 +1140,13 @@ function startQuiz(subject, customQuestions = null) {
   const meta = SUBJECTS[subject];
   els.quizIcon.textContent = meta.icon;
   els.quizIcon.style.background = meta.color;
-  els.quizKicker.textContent = isMix ? "MISJA SPECJALNA" : "MISJA";
+  els.quizKicker.textContent = isMix
+    ? (language === "de" ? "SPEZIALMISSION" : "MISJA SPECJALNA")
+    : (language === "de" ? "MISSION" : "MISJA");
   els.quizKicker.style.color = meta.color;
-  els.quizSubject.textContent = meta.name;
+  els.quizSubject.textContent = subjectName(subject);
   els.quizEarned.textContent = "0 XP";
-  els.levelBadge.textContent = `POZIOM ${age} LAT`;
+  els.levelBadge.textContent = language === "de" ? `STUFE ${age} JAHRE` : `POZIOM ${age} LAT`;
   els.quizOverlay.hidden = false;
   document.body.classList.add("modal-open");
   renderQuestion();
@@ -950,17 +1166,19 @@ function renderQuestion() {
   const percent = (quiz.index / quiz.questions.length) * 100;
 
   els.quizProgress.style.width = `${percent}%`;
-  els.questionNumber.textContent = `PYTANIE ${quiz.index + 1} Z ${quiz.questions.length}`;
+  els.questionNumber.textContent = language === "de"
+    ? `FRAGE ${quiz.index + 1} VON ${quiz.questions.length}`
+    : `PYTANIE ${quiz.index + 1} Z ${quiz.questions.length}`;
   els.quizEarned.textContent = `${quiz.earned} XP`;
   els.questionCard.innerHTML = `
     <div class="question-mascot" aria-hidden="true">${itemMeta.mascot}</div>
     <p class="question-prompt">${item.prompt}</p>
-    ${item.passage ? `<div class="reading-passage"><span>TEKST DO PRZECZYTANIA</span><p>${item.passage}</p></div>` : ""}
+    ${item.passage ? `<div class="reading-passage"><span>${language === "de" ? "TEXT ZUM LESEN" : "TEKST DO PRZECZYTANIA"}</span><p>${item.passage}</p></div>` : ""}
     <h2 id="question-title">${item.question}</h2>
     <div class="answers-grid" id="answers"></div>
     <div class="feedback" id="feedback" aria-live="polite"></div>
     <button class="next-button" id="next-question" type="button" hidden>
-      Następne pytanie <span aria-hidden="true">→</span>
+      ${language === "de" ? "Nächste Frage" : "Następne pytanie"} <span aria-hidden="true">→</span>
     </button>`;
 
   const answers = els.questionCard.querySelector("#answers");
@@ -1001,7 +1219,7 @@ function checkAnswer(selectedButton, item) {
     categoryResult.correct += 1;
     categoryResult.xp += 12;
     feedback.className = "feedback good";
-    feedback.textContent = `Turbo! +10 XP · ${item.fact}`;
+    feedback.textContent = `${language === "de" ? "Turbo!" : "Turbo!"} +10 XP · ${item.fact}`;
     beep("correct");
     burstConfetti(16);
   } else {
@@ -1009,13 +1227,15 @@ function checkAnswer(selectedButton, item) {
     categoryResult.wrong += 1;
     categoryResult.xp += 2;
     feedback.className = "feedback bad";
-    feedback.textContent = `Prawie! ${item.fact}`;
+    feedback.textContent = `${language === "de" ? "Fast!" : "Prawie!"} ${item.fact}`;
     beep("wrong");
   }
 
   els.quizEarned.textContent = `${quiz.earned} XP`;
   next.hidden = false;
-  next.textContent = quiz.index === quiz.questions.length - 1 ? "Pokaż wynik →" : "Następne pytanie →";
+  next.textContent = quiz.index === quiz.questions.length - 1
+    ? (language === "de" ? "Ergebnis zeigen →" : "Pokaż wynik →")
+    : (language === "de" ? "Nächste Frage →" : "Następne pytanie →");
   next.addEventListener("click", () => {
     quiz.index += 1;
     renderQuestion();
@@ -1059,23 +1279,25 @@ function finishQuiz() {
 
   const perfect = quiz.correct === quiz.questions.length;
   const passed = quiz.correct >= Math.ceil(quiz.questions.length * 0.6);
-  const headline = perfect ? "Mózg odleciał!" : passed ? "Misja zaliczona!" : "Trening zrobiony!";
+  const headline = language === "de"
+    ? (perfect ? "Dein Gehirn fliegt!" : passed ? "Mission geschafft!" : "Training beendet!")
+    : (perfect ? "Mózg odleciał!" : passed ? "Misja zaliczona!" : "Trening zrobiony!");
   const icon = perfect ? "🏆" : passed ? "⚡" : "🧠";
 
-  els.questionNumber.textContent = "KONIEC MISJI";
+  els.questionNumber.textContent = language === "de" ? "MISSION BEENDET" : "KONIEC MISJI";
   els.questionCard.innerHTML = `
     <div class="summary-view">
       <div>
         <div class="summary-icon" aria-hidden="true">${icon}</div>
         <h2 id="question-title">${headline}</h2>
-        <p>${perfect ? "Komplet odpowiedzi. Kapibara nie dowierza." : "Każda misja wzmacnia TurboMózg."}</p>
+        <p>${language === "de" ? (perfect ? "Alles richtig. Professor Capybara staunt!" : "Jede Mission stärkt dein Turbohirn.") : (perfect ? "Komplet odpowiedzi. Kapibara nie dowierza." : "Każda misja wzmacnia TurboMózg.")}</p>
         <div class="summary-stats">
-          <div class="summary-stat"><strong>${quiz.correct}/${quiz.questions.length}</strong><small>poprawne</small></div>
-          <div class="summary-stat"><strong>+${quiz.earned}</strong><small>zdobyte XP</small></div>
-          <div class="summary-stat"><strong>+${categoryXpEarned}</strong><small>XP kategorii</small></div>
-          <div class="summary-stat"><strong>${current.streak} 🔥</strong><small>seria misji</small></div>
+          <div class="summary-stat"><strong>${quiz.correct}/${quiz.questions.length}</strong><small>${language === "de" ? "richtig" : "poprawne"}</small></div>
+          <div class="summary-stat"><strong>+${quiz.earned}</strong><small>${language === "de" ? "gesammelte XP" : "zdobyte XP"}</small></div>
+          <div class="summary-stat"><strong>+${categoryXpEarned}</strong><small>${language === "de" ? "Kategorie-XP" : "XP kategorii"}</small></div>
+          <div class="summary-stat"><strong>${current.streak} 🔥</strong><small>${language === "de" ? "Missionsserie" : "seria misji"}</small></div>
         </div>
-        <button class="next-button" id="finish-button" type="button">Wracam do misji <span aria-hidden="true">→</span></button>
+        <button class="next-button" id="finish-button" type="button">${language === "de" ? "Zurück zu den Missionen" : "Wracam do misji"} <span aria-hidden="true">→</span></button>
       </div>
     </div>`;
 
@@ -1159,8 +1381,10 @@ function showAuthMessage(message, kind = "info") {
 function updateAccountUI() {
   if (!currentUser) {
     els.accountAvatar.textContent = "G";
-    els.accountName.textContent = "Zaloguj się";
-    els.accountStatus.textContent = authConfig?.googleClientId ? "Konto Google" : "Google do konfiguracji";
+    els.accountName.textContent = language === "de" ? "Anmelden" : "Zaloguj się";
+    els.accountStatus.textContent = authConfig?.googleClientId
+      ? (language === "de" ? "Google-Konto" : "Konto Google")
+      : (language === "de" ? "Google einrichten" : "Google do konfiguracji");
     els.adminToggle.hidden = true;
     return;
   }
@@ -1168,16 +1392,26 @@ function updateAccountUI() {
   const initial = (currentUser.name || currentUser.email || "G").trim().charAt(0).toUpperCase();
   els.accountAvatar.textContent = initial;
   els.accountName.textContent = currentUser.name || currentUser.email;
-  els.accountStatus.textContent = currentUser.role === "admin" ? "Administrator" : currentUser.status === "approved" ? "Konto aktywne" : "Czeka na akceptację";
+  els.accountStatus.textContent = currentUser.role === "admin"
+    ? "Administrator"
+    : currentUser.status === "approved"
+      ? (language === "de" ? "Konto aktiv" : "Konto aktywne")
+      : (language === "de" ? "Wartet auf Freigabe" : "Czeka na akceptację");
   els.accountProfileAvatar.textContent = initial;
-  els.accountTitle.textContent = currentUser.name || "Konto Google";
+  els.accountTitle.textContent = currentUser.name || (language === "de" ? "Google-Konto" : "Konto Google");
   els.accountEmail.textContent = currentUser.email;
   els.accountState.className = `account-state ${currentUser.status}`;
-  els.accountState.textContent = currentUser.role === "admin"
-    ? "Masz dostęp do panelu administratora i zarządzania kontami."
-    : currentUser.status === "approved"
-      ? "Konto zaakceptowane. Wyniki zapisują się w Twojej chmurze."
-      : "Konto czeka na akceptację administratora.";
+  els.accountState.textContent = language === "de"
+    ? (currentUser.role === "admin"
+      ? "Du hast Zugriff auf den Administratorbereich und die Kontoverwaltung."
+      : currentUser.status === "approved"
+        ? "Konto freigegeben. Die Ergebnisse werden in deiner Cloud gespeichert."
+        : "Das Konto wartet auf die Freigabe durch den Administrator.")
+    : (currentUser.role === "admin"
+      ? "Masz dostęp do panelu administratora i zarządzania kontami."
+      : currentUser.status === "approved"
+        ? "Konto zaakceptowane. Wyniki zapisują się w Twojej chmurze."
+        : "Konto czeka na akceptację administratora.");
   els.adminToggle.hidden = currentUser.role !== "admin";
 }
 
@@ -1251,7 +1485,7 @@ function renderGoogleButton() {
         shape: "pill",
         text: "continue_with",
         width: Math.min(360, Math.max(240, els.googleSignin.clientWidth || 320)),
-        locale: "pl"
+        locale: language
       });
       return;
     }
@@ -1428,6 +1662,7 @@ async function handleAdminAction(event) {
 }
 
 els.ageOptions.forEach((option) => option.addEventListener("click", () => chooseAge(option.dataset.age)));
+els.languageToggle.addEventListener("click", toggleLanguage);
 els.ageSwitch.addEventListener("click", openAgeDialog);
 els.ageClose.addEventListener("click", () => {
   if (!safeGet(AGE_KEY)) safeSet(AGE_KEY, String(age));
@@ -1452,7 +1687,7 @@ els.adminUsers.addEventListener("click", handleAdminAction);
 els.randomMission.addEventListener("click", () => {
   const subjects = Object.keys(QUESTION_BANK[age]);
   const random = subjects[Math.floor(Math.random() * subjects.length)];
-  showToast(`Losowanie… ${SUBJECTS[random].name}! 🎲`);
+  showToast(`${language === "de" ? "Auslosung…" : "Losowanie…"} ${subjectName(random)}! 🎲`);
   window.setTimeout(() => startQuiz(random), 350);
 });
 els.mixMission.addEventListener("click", () => startQuiz("mix", mixQuestions()));
@@ -1463,7 +1698,9 @@ els.soundToggle.addEventListener("click", () => {
   safeSet(SOUND_KEY, soundOn ? "on" : "off");
   updateUI();
   if (soundOn) beep("select");
-  showToast(soundOn ? "Dźwięki włączone ♪" : "Dźwięki wyłączone");
+  showToast(language === "de"
+    ? (soundOn ? "Töne eingeschaltet ♪" : "Töne ausgeschaltet")
+    : (soundOn ? "Dźwięki włączone ♪" : "Dźwięki wyłączone"));
 });
 
 els.syncToggle.addEventListener("click", connectCloudSync);
