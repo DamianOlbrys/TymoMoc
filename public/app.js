@@ -90,6 +90,8 @@ const QUESTION_BANK = {
 const STORAGE_KEY = "tymomoc-progress-v1";
 const AGE_KEY = "tymomoc-age";
 const SOUND_KEY = "tymomoc-sound";
+const SYNC_CODE_KEY = "tymomoc-sync-code-v1";
+const PROGRESS_API_URL = "https://tymomoc-api.damianolbrys5.workers.dev/api/progress";
 
 const els = {
   ageModal: document.querySelector("#age-modal"),
@@ -106,6 +108,16 @@ const els = {
   mixMission: document.querySelector("#mix-mission"),
   soundToggle: document.querySelector("#sound-toggle"),
   soundIcon: document.querySelector("#sound-icon"),
+  syncToggle: document.querySelector("#sync-toggle"),
+  syncIcon: document.querySelector("#sync-icon"),
+  syncProgress: document.querySelector("#sync-progress"),
+  syncLabel: document.querySelector("#sync-label"),
+  syncStatus: document.querySelector("#sync-status"),
+  syncModal: document.querySelector("#sync-modal"),
+  syncForm: document.querySelector("#sync-form"),
+  syncClose: document.querySelector("#sync-close"),
+  syncCodeInput: document.querySelector("#sync-code-input"),
+  syncSubmit: document.querySelector("#sync-submit"),
   resetProgress: document.querySelector("#reset-progress"),
   quizOverlay: document.querySelector("#quiz-overlay"),
   quizClose: document.querySelector("#quiz-close"),
@@ -126,8 +138,10 @@ const emptyProgress = () => ({ xp: 0, streak: 0, completed: 0, correct: 0, today
 let age = Number(safeGet(AGE_KEY)) || 8;
 let soundOn = safeGet(SOUND_KEY) !== "off";
 let progress = loadProgress();
+let syncCode = normalizeSyncCode(safeGet(SYNC_CODE_KEY) || "");
 let quiz = null;
 let toastTimer = null;
+let cloudSaveTimer = null;
 
 function localDate() {
   const now = new Date();
@@ -140,6 +154,10 @@ function safeGet(key) {
 
 function safeSet(key, value) {
   try { localStorage.setItem(key, value); } catch { /* Strona nadal działa bez zapisu. */ }
+}
+
+function safeRemove(key) {
+  try { localStorage.removeItem(key); } catch { /* Brak dostępu do pamięci nie zatrzymuje strony. */ }
 }
 
 function loadProgress() {
@@ -159,8 +177,168 @@ function loadProgress() {
   return result;
 }
 
-function saveProgress() {
+function saveProgress({ cloud = true } = {}) {
   safeSet(STORAGE_KEY, JSON.stringify(progress));
+  if (cloud && syncCode) scheduleCloudSave();
+}
+
+function normalizeSyncCode(value) {
+  return String(value).toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function setSyncState(state) {
+  const states = {
+    local: { icon: "☁", label: "Włącz zapis w chmurze", detail: "Wyniki są zapisane na tym urządzeniu" },
+    waiting: { icon: "☁", label: "Zapis w chmurze włączony", detail: "Oczekiwanie na synchronizację" },
+    syncing: { icon: "↻", label: "Synchronizuję wyniki…", detail: "Łączę się z bezpieczną bazą" },
+    synced: { icon: "✓", label: "Wyniki są w chmurze", detail: "Synchronizacja działa automatycznie" },
+    error: { icon: "!", label: "Nie udało się zsynchronizować", detail: "Wyniki nadal są bezpieczne na tym urządzeniu" }
+  };
+  const selected = states[state] || states.local;
+
+  els.syncIcon.textContent = selected.icon;
+  els.syncLabel.textContent = selected.label;
+  els.syncStatus.textContent = selected.detail;
+  els.syncToggle.dataset.syncState = state;
+  els.syncProgress.dataset.syncState = state;
+  els.syncToggle.setAttribute("aria-label", selected.label);
+  els.syncToggle.title = selected.detail;
+}
+
+function mergeProgress(localProgress, cloudProgress) {
+  const merged = {};
+  const today = localDate();
+
+  [8, 9].forEach((level) => {
+    const local = localProgress[level] || emptyProgress();
+    const remote = cloudProgress?.[level] || cloudProgress?.[String(level)] || emptyProgress();
+    const localToday = local.today?.date === today ? Number(local.today.count) || 0 : 0;
+    const remoteToday = remote.today?.date === today ? Number(remote.today.count) || 0 : 0;
+
+    merged[level] = {
+      xp: Math.max(Number(local.xp) || 0, Number(remote.xp) || 0),
+      streak: Math.max(Number(local.streak) || 0, Number(remote.streak) || 0),
+      completed: Math.max(Number(local.completed) || 0, Number(remote.completed) || 0),
+      correct: Math.max(Number(local.correct) || 0, Number(remote.correct) || 0),
+      today: { date: today, count: Math.max(localToday, remoteToday) }
+    };
+  });
+
+  return merged;
+}
+
+async function cloudRequest(method, body) {
+  const response = await fetch(PROGRESS_API_URL, {
+    method,
+    headers: {
+      authorization: `Bearer ${syncCode}`,
+      ...(body ? { "content-type": "application/json" } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: "no-store"
+  });
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(payload.error || "Błąd synchronizacji");
+    error.status = response.status;
+    throw error;
+  }
+
+  return payload;
+}
+
+function scheduleCloudSave() {
+  window.clearTimeout(cloudSaveTimer);
+  setSyncState("waiting");
+  cloudSaveTimer = window.setTimeout(async () => {
+    setSyncState("syncing");
+    try {
+      await cloudRequest("PUT", { progress });
+      setSyncState("synced");
+    } catch {
+      setSyncState("error");
+    }
+  }, 650);
+}
+
+async function syncFromCloud(showMessage = true) {
+  if (!syncCode) return;
+  setSyncState("syncing");
+
+  try {
+    const remote = await cloudRequest("GET");
+    if (remote.progress) {
+      progress = mergeProgress(progress, remote.progress);
+      saveProgress({ cloud: false });
+      updateUI();
+    }
+    await cloudRequest("PUT", { progress });
+    setSyncState("synced");
+    if (showMessage) showToast("Wyniki zsynchronizowane ☁");
+  } catch (error) {
+    if (error.status === 401) {
+      syncCode = "";
+      safeRemove(SYNC_CODE_KEY);
+      setSyncState("local");
+      if (showMessage) showToast("Ten kod synchronizacji jest nieprawidłowy");
+      return;
+    }
+    setSyncState("error");
+    if (showMessage) showToast("Brak połączenia z chmurą — spróbujemy później");
+  }
+}
+
+async function connectCloudSync() {
+  if (syncCode) {
+    await syncFromCloud(true);
+    return;
+  }
+
+  els.syncModal.hidden = false;
+  document.body.classList.add("modal-open");
+  window.setTimeout(() => els.syncCodeInput.focus(), 30);
+}
+
+function closeSyncDialog() {
+  els.syncModal.hidden = true;
+  els.syncCodeInput.value = "";
+  if (els.quizOverlay.hidden && els.ageModal.hidden) document.body.classList.remove("modal-open");
+}
+
+async function submitSyncCode(event) {
+  event.preventDefault();
+  const candidate = normalizeSyncCode(els.syncCodeInput.value);
+  if (!candidate) {
+    showToast("Najpierw wpisz kod synchronizacji");
+    return;
+  }
+
+  els.syncSubmit.disabled = true;
+  els.syncSubmit.firstChild.textContent = "Łączę… ";
+  syncCode = candidate;
+  setSyncState("syncing");
+  try {
+    const remote = await cloudRequest("GET");
+    safeSet(SYNC_CODE_KEY, syncCode);
+    if (remote.progress) {
+      progress = mergeProgress(progress, remote.progress);
+      saveProgress({ cloud: false });
+      updateUI();
+    }
+    await cloudRequest("PUT", { progress });
+    setSyncState("synced");
+    closeSyncDialog();
+    showToast("Chmura połączona! Wyniki już nie znikną ☁");
+  } catch (error) {
+    syncCode = "";
+    safeRemove(SYNC_CODE_KEY);
+    setSyncState("local");
+    showToast(error.status === 401 ? "Nieprawidłowy kod synchronizacji" : "Nie udało się połączyć z chmurą");
+  } finally {
+    els.syncSubmit.disabled = false;
+    els.syncSubmit.firstChild.textContent = "Połącz wyniki ";
+  }
 }
 
 function shuffle(items) {
@@ -463,6 +641,11 @@ els.soundToggle.addEventListener("click", () => {
   showToast(soundOn ? "Dźwięki włączone ♪" : "Dźwięki wyłączone");
 });
 
+els.syncToggle.addEventListener("click", connectCloudSync);
+els.syncProgress.addEventListener("click", connectCloudSync);
+els.syncForm.addEventListener("submit", submitSyncCode);
+els.syncClose.addEventListener("click", closeSyncDialog);
+
 els.resetProgress.addEventListener("click", () => {
   if (!window.confirm("Wyzerować wszystkie punkty i ukończone misje?")) return;
   progress = { 8: emptyProgress(), 9: emptyProgress() };
@@ -474,12 +657,16 @@ els.resetProgress.addEventListener("click", () => {
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   if (!els.quizOverlay.hidden) closeQuiz();
+  else if (!els.syncModal.hidden) closeSyncDialog();
   else if (!els.ageModal.hidden) closeAgeDialog();
 });
 
 updateUI();
+setSyncState(syncCode ? "waiting" : "local");
 if (safeGet(AGE_KEY)) {
   els.ageModal.hidden = true;
 } else {
   document.body.classList.add("modal-open");
 }
+
+if (syncCode) void syncFromCloud(false);

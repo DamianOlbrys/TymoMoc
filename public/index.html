@@ -37,6 +37,10 @@
           <span><strong id="xp-count">0 XP</strong><small>Twój wynik</small></span>
         </div>
 
+        <button class="icon-button sync-button" id="sync-toggle" type="button" aria-label="Połącz zapis wyników z chmurą">
+          <span id="sync-icon" aria-hidden="true">☁</span>
+        </button>
+
         <button class="icon-button" id="sound-toggle" type="button" aria-label="Wyłącz dźwięki" aria-pressed="true">
           <span id="sound-icon" aria-hidden="true">♪</span>
         </button>
@@ -173,7 +177,13 @@
     <footer class="footer shell">
       <div class="brand mini"><span class="brand-mark" aria-hidden="true">T</span><strong>TymoMoc</strong></div>
       <p>Zrobione z ciekawością dla Tymona.</p>
-      <button id="reset-progress" type="button">Wyzeruj mój postęp</button>
+      <div class="footer-actions">
+        <button class="sync-control" id="sync-progress" type="button">
+          <span aria-hidden="true">☁</span>
+          <span><strong id="sync-label">Włącz zapis w chmurze</strong><small id="sync-status">Wyniki są zapisane na tym urządzeniu</small></span>
+        </button>
+        <button id="reset-progress" type="button">Wyzeruj mój postęp</button>
+      </div>
     </footer>
 
     <div class="modal-backdrop" id="age-modal" role="dialog" aria-modal="true" aria-labelledby="age-title">
@@ -192,6 +202,21 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <div class="modal-backdrop" id="sync-modal" role="dialog" aria-modal="true" aria-labelledby="sync-title" hidden>
+      <form class="age-dialog sync-dialog" id="sync-form">
+        <button class="modal-close" id="sync-close" type="button" aria-label="Zamknij wpisywanie kodu">×</button>
+        <div class="dialog-spark sync-cloud" aria-hidden="true">☁</div>
+        <span class="kicker">RODZINNA CHMURA</span>
+        <h2 id="sync-title">Zapisz wyniki na zawsze</h2>
+        <p>Wpisz prywatny kod rodzinny. Wystarczy zrobić to raz na każdym urządzeniu.</p>
+        <label class="sync-code-field">
+          <span>Kod synchronizacji</span>
+          <input id="sync-code-input" name="sync-code" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="TYMO-XXXX-XXXX-XXXX-XXXX" required />
+        </label>
+        <button class="primary-button sync-submit" id="sync-submit" type="submit">Połącz wyniki <span aria-hidden="true">→</span></button>
+      </form>
     </div>
 
     <div class="quiz-overlay" id="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="question-title" hidden>
