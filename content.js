@@ -496,9 +496,26 @@
   ];
   const MOTIVATIONS_DE = MOTIVATION_STARTS_DE.flatMap((start) => MOTIVATION_ENDS_DE.map((end) => `${start} ${end}`));
 
+  const MOTIVATION_STARTS_EN = [
+    "Today, every small step", "Your curiosity", "One brave attempt", "Calm concentration", "Every good question",
+    "Your effort", "Something new you learn today", "Five minutes of practice", "A mistake you improve", "An idea you test",
+    "Sticking with a hard task", "A smart break", "The joy of discovery", "The courage to ask", "A finished mission",
+    "Every page you read", "Every calculation you solve", "A clever plan", "Careful reading", "Today's practice",
+    "Your own pace", "A small victory", "A moment of full focus", "The next attempt", "Knowledge gained with a smile"
+  ];
+  const MOTIVATION_ENDS_EN = [
+    "builds your great power.", "brings you closer to mastery.", "helps you know more tomorrow.", "is fuel for your Turbo Brain.",
+    "turns a challenge into a new skill.", "shows how much you can do.", "opens the door to another discovery.", "grows together with you.",
+    "matters more than a perfect score.", "teaches your brain new tricks.", "leads you straight towards your goal.", "makes you stronger than yesterday.",
+    "deserves a little celebration.", "gives you courage for the next task.", "makes a difference, even when you cannot see it yet.",
+    "is proof of real perseverance.", "turns ‘I cannot do it’ into ‘I am still learning’.", "strengthens memory and confidence.",
+    "makes today a great day to learn.", "can be the start of something big."
+  ];
+  const MOTIVATIONS_EN = MOTIVATION_STARTS_EN.flatMap((start) => MOTIVATION_ENDS_EN.map((end) => `${start} ${end}`));
+
   function dailyMotivation(date = new Date(), language = "pl") {
     const dayNumber = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
-    const pool = language === "de" ? MOTIVATIONS_DE : MOTIVATIONS;
+    const pool = language === "de" ? MOTIVATIONS_DE : language === "en" ? MOTIVATIONS_EN : MOTIVATIONS;
     return pool[Math.abs(dayNumber) % pool.length];
   }
 
@@ -506,6 +523,7 @@
     TARGET_PER_SUBJECT,
     MOTIVATIONS,
     MOTIVATIONS_DE,
+    MOTIVATIONS_EN,
     buildQuestionBank,
     dailyMotivation
   };
