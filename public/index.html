@@ -82,9 +82,15 @@
             <h2>Wybierz swoją misję</h2>
             <p id="level-copy">Poziom dla 8 lat · zadania krótkie i konkretne</p>
           </div>
-          <div class="today-status">
-            <span class="pulse-dot" aria-hidden="true"></span>
-            <span><strong id="today-count">0/3 misje</strong><small>dzisiejszy cel</small></span>
+          <div class="mission-summary-actions">
+            <button class="question-count-button" id="question-count-toggle" type="button" aria-haspopup="dialog" aria-expanded="false">
+              <span class="question-count-icon" aria-hidden="true">🗂</span>
+              <span><strong id="question-count-total">28 pytań</strong><small>Zobacz bazę pytań</small></span>
+            </button>
+            <div class="today-status">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <span><strong id="today-count">0/3 misje</strong><small>dzisiejszy cel</small></span>
+            </div>
           </div>
         </div>
 
@@ -94,7 +100,7 @@
             <span class="subject-top"><span class="subject-icon">÷</span><span class="card-arrow">↗</span></span>
             <span class="subject-name">Matma<br />Bez Spiny</span>
             <span class="subject-desc" id="math-desc">Dodawanie, mnożenie i sprytne zagadki</span>
-            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●○</span></span>
           </button>
 
           <button class="subject-card subject-polish" type="button" data-subject="polish">
@@ -102,7 +108,7 @@
             <span class="subject-top"><span class="subject-icon">Ą</span><span class="card-arrow">↗</span></span>
             <span class="subject-name">Polski<br />Kombinator</span>
             <span class="subject-desc" id="polish-desc">Ortografia, części mowy i słowne wygibasy</span>
-            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●○</span></span>
           </button>
 
           <button class="subject-card subject-english" type="button" data-subject="english">
@@ -110,7 +116,7 @@
             <span class="subject-top"><span class="subject-icon">Hi!</span><span class="card-arrow">↗</span></span>
             <span class="subject-name">English<br />Level Up</span>
             <span class="subject-desc" id="english-desc">Słówka, zdania i codzienne zwroty</span>
-            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●○</span></span>
           </button>
 
           <button class="subject-card subject-world" type="button" data-subject="world">
@@ -118,7 +124,7 @@
             <span class="subject-top"><span class="subject-icon">◎</span><span class="card-arrow">↗</span></span>
             <span class="subject-name">Świat<br />Na Opak</span>
             <span class="subject-desc" id="world-desc">Przyroda, kosmos, geografia i logika</span>
-            <span class="card-footer"><span>5 pytań</span><span class="difficulty">●●○</span></span>
+            <span class="card-footer"><span class="subject-question-count">7 pytań łącznie</span><span class="difficulty">●●○</span></span>
           </button>
         </div>
       </section>
@@ -217,6 +223,21 @@
         </label>
         <button class="primary-button sync-submit" id="sync-submit" type="submit">Połącz wyniki <span aria-hidden="true">→</span></button>
       </form>
+    </div>
+
+    <div class="modal-backdrop" id="question-count-modal" role="dialog" aria-modal="true" aria-labelledby="question-count-title" hidden>
+      <div class="age-dialog question-count-dialog">
+        <button class="modal-close" id="question-count-close" type="button" aria-label="Zamknij bazę pytań">×</button>
+        <div class="dialog-spark question-count-spark" aria-hidden="true">🗂</div>
+        <span class="kicker">BAZA PYTAŃ</span>
+        <h2 id="question-count-title">Pytania dla 8 lat</h2>
+        <p>Każda misja losuje 5 pytań z wybranej kategorii. Tutaj widzisz całą dostępną pulę.</p>
+        <div class="question-count-list" id="question-count-list"></div>
+        <div class="question-count-summary">
+          <span>Wszystkie kategorie</span>
+          <strong id="question-count-modal-total">28 pytań</strong>
+        </div>
+      </div>
     </div>
 
     <div class="quiz-overlay" id="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="question-title" hidden>

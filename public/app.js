@@ -104,6 +104,13 @@ const els = {
   todayCount: document.querySelector("#today-count"),
   levelCopy: document.querySelector("#level-copy"),
   subjectCards: [...document.querySelectorAll(".subject-card")],
+  questionCountToggle: document.querySelector("#question-count-toggle"),
+  questionCountTotal: document.querySelector("#question-count-total"),
+  questionCountModal: document.querySelector("#question-count-modal"),
+  questionCountClose: document.querySelector("#question-count-close"),
+  questionCountTitle: document.querySelector("#question-count-title"),
+  questionCountList: document.querySelector("#question-count-list"),
+  questionCountModalTotal: document.querySelector("#question-count-modal-total"),
   randomMission: document.querySelector("#random-mission"),
   mixMission: document.querySelector("#mix-mission"),
   soundToggle: document.querySelector("#sound-toggle"),
@@ -303,7 +310,7 @@ async function connectCloudSync() {
 function closeSyncDialog() {
   els.syncModal.hidden = true;
   els.syncCodeInput.value = "";
-  if (els.quizOverlay.hidden && els.ageModal.hidden) document.body.classList.remove("modal-open");
+  updateModalLock();
 }
 
 async function submitSyncCode(event) {
@@ -350,6 +357,60 @@ function shuffle(items) {
   return copy;
 }
 
+function formatQuestionCount(count) {
+  const lastTwo = count % 100;
+  const last = count % 10;
+  const noun = count === 1 ? "pytanie" : last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14) ? "pytania" : "pytań";
+  return `${count} ${noun}`;
+}
+
+function updateQuestionCounts() {
+  const entries = Object.entries(QUESTION_BANK[age]);
+  const total = entries.reduce((sum, [, questions]) => sum + questions.length, 0);
+
+  els.questionCountTotal.textContent = formatQuestionCount(total);
+  els.questionCountModalTotal.textContent = formatQuestionCount(total);
+  els.questionCountTitle.textContent = `Pytania dla ${age} lat`;
+
+  els.subjectCards.forEach((card) => {
+    const count = QUESTION_BANK[age][card.dataset.subject].length;
+    card.querySelector(".subject-question-count").textContent = `${formatQuestionCount(count)} łącznie`;
+  });
+
+  els.questionCountList.innerHTML = entries.map(([subject, questions]) => {
+    const meta = SUBJECTS[subject];
+    return `
+      <div class="question-count-row">
+        <span class="question-count-subject-icon" style="--subject-color: ${meta.color}" aria-hidden="true">${meta.icon}</span>
+        <span><strong>${meta.name}</strong><small>pełna pula dla poziomu ${age} lat</small></span>
+        <b>${formatQuestionCount(questions.length)}</b>
+      </div>`;
+  }).join("");
+}
+
+function updateModalLock() {
+  const anyModalOpen = !els.ageModal.hidden
+    || !els.syncModal.hidden
+    || !els.questionCountModal.hidden
+    || !els.quizOverlay.hidden;
+  document.body.classList.toggle("modal-open", anyModalOpen);
+}
+
+function openQuestionCountDialog() {
+  updateQuestionCounts();
+  els.questionCountModal.hidden = false;
+  els.questionCountToggle.setAttribute("aria-expanded", "true");
+  document.body.classList.add("modal-open");
+  window.setTimeout(() => els.questionCountClose.focus(), 30);
+}
+
+function closeQuestionCountDialog() {
+  els.questionCountModal.hidden = true;
+  els.questionCountToggle.setAttribute("aria-expanded", "false");
+  updateModalLock();
+  els.questionCountToggle.focus();
+}
+
 function updateUI() {
   const current = progress[age];
   els.topAge.textContent = `${age} lat`;
@@ -372,6 +433,8 @@ function updateUI() {
   document.querySelector("#world-desc").textContent = age === 8
     ? "Przyroda, Polska, kosmos i czas"
     : "Geografia, kosmos i naukowe przemiany";
+
+  updateQuestionCounts();
 
   els.ageOptions.forEach((option) => option.classList.toggle("selected", Number(option.dataset.age) === age));
   els.soundToggle.setAttribute("aria-pressed", String(soundOn));
@@ -397,7 +460,7 @@ function openAgeDialog() {
 
 function closeAgeDialog() {
   els.ageModal.hidden = true;
-  if (els.quizOverlay.hidden) document.body.classList.remove("modal-open");
+  updateModalLock();
 }
 
 function questionsFor(subject) {
@@ -561,7 +624,7 @@ function finishQuiz() {
 
 function closeQuiz() {
   els.quizOverlay.hidden = true;
-  document.body.classList.remove("modal-open");
+  updateModalLock();
   quiz = null;
   els.quizProgress.style.width = "0";
   els.quizClose.focus();
@@ -624,6 +687,8 @@ els.ageClose.addEventListener("click", () => {
 });
 
 els.subjectCards.forEach((card) => card.addEventListener("click", () => startQuiz(card.dataset.subject)));
+els.questionCountToggle.addEventListener("click", openQuestionCountDialog);
+els.questionCountClose.addEventListener("click", closeQuestionCountDialog);
 els.randomMission.addEventListener("click", () => {
   const subjects = Object.keys(QUESTION_BANK[age]);
   const random = subjects[Math.floor(Math.random() * subjects.length)];
@@ -658,6 +723,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   if (!els.quizOverlay.hidden) closeQuiz();
   else if (!els.syncModal.hidden) closeSyncDialog();
+  else if (!els.questionCountModal.hidden) closeQuestionCountDialog();
   else if (!els.ageModal.hidden) closeAgeDialog();
 });
 
